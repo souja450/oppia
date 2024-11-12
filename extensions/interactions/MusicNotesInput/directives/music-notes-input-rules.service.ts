@@ -72,8 +72,15 @@ export class MusicNotesInputRulesService {
     answer: MusicNotesAnswer[],
     inputs: {a: number; b: number}
   ): boolean {
+    // Validate that a <= b
+    if (inputs.a > inputs.b) {
+      throw new Error('Invalid inputs: a must be less than or equal to b');
+    }
+
     var answerLength: number =
       MusicNotesInputRulesService._convertSequenceToMidi(answer).length;
+    
+    // Proceed with the original functionality only if the inputs are valid
     return answerLength >= inputs.a && answerLength <= inputs.b;
   }
 
