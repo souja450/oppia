@@ -4660,21 +4660,30 @@ class ExplorationSnapshotUnitTests(ExplorationServicesUnitTests):
     SECOND_EMAIL: Final = 'abc123@gmail.com'
 
     def test_get_last_updated_by_human_ms(self) -> None:
+    """Test deterministic behavior for last updated timestamps."""
+    with mock.patch('utils.get_current_time_in_millisecs', side_effect=[1000, 2000, 3000]):
+        # To simulate the original timestamp
         original_timestamp = utils.get_current_time_in_millisecs()
 
+        # To save a new valid exploration
         self.save_new_valid_exploration(
             self.EXP_0_ID, self.owner_id, end_state_name='End')
 
+        # To simulate the timestamp after the first edit
         timestamp_after_first_edit = utils.get_current_time_in_millisecs()
 
+        # To perform an update to simulate a migration
         exp_services.update_exploration(
             feconf.MIGRATION_BOT_USER_ID, self.EXP_0_ID, [
                 exp_domain.ExplorationChange({
                     'cmd': exp_domain.CMD_EDIT_EXPLORATION_PROPERTY,
                     'property_name': 'title',
                     'new_value': 'New title'
-                })], 'Did migration.')
+                })
+            ], 'Did migration.')
 
+        # To assert that the exploration's last updated timestamp by a human
+        # falls between the mocked timestamps
         self.assertLess(
             original_timestamp,
             exp_services.get_last_updated_by_human_ms(self.EXP_0_ID))
