@@ -30,10 +30,13 @@ from core.constants import constants
 from core.controllers import base
 from core.domain import android_services
 from core.domain import blog_services
+from core.domain import classifier_services
 from core.domain import classroom_config_services
 from core.domain import email_manager
 from core.domain import feature_flag_services
 from core.domain import feedback_services
+from core.domain import platform_parameter_list
+from core.domain import platform_parameter_services
 from core.domain import question_services
 from core.domain import rights_manager
 from core.domain import role_services
@@ -1346,7 +1349,7 @@ def can_delete_any_user(
         self: _SelfBaseHandlerType, **kwargs: Any
     ) -> _GenericHandlerFunctionReturnType:
         """Checks if the user is logged in and is a primary admin e.g. user with
-        email address equal to feconf.SYSTEM_EMAIL_ADDRESS.
+        email address equal to SYSTEM_EMAIL_ADDRESS.
 
         Args:
             **kwargs: *. Keyword arguments.
@@ -1363,7 +1366,9 @@ def can_delete_any_user(
             raise self.NotLoggedInException
 
         email = user_services.get_email_from_user_id(self.user_id)
-        if email != feconf.SYSTEM_EMAIL_ADDRESS:
+        if email != platform_parameter_services.get_platform_parameter_value(
+            platform_parameter_list.ParamName.SYSTEM_EMAIL_ADDRESS.value
+        ):
             raise self.UnauthorizedUserException(
                 '%s cannot delete any user.' % self.user_id)
 
@@ -4029,35 +4034,44 @@ def can_access_story_viewer_page(
         topic_is_published = False
         topic_id = story.corresponding_topic_id
         story_id = story.id
-        user_actions_info = user_services.get_user_actions_info(self.user_id)
+        user_actions_info = (
+            user_services.get_user_actions_info(self.user_id))
         if topic_id:
             topic = topic_fetchers.get_topic_by_id(topic_id)
             if topic.url_fragment != topic_url_fragment:
                 _redirect_based_on_return_type(
                     self,
-                    '/learn/%s/%s/story/%s' % (
+                    "/learn/%s/%s/story/%s" % (
                         classroom_url_fragment,
                         topic.url_fragment,
-                        story_url_fragment),
-                    self.GET_HANDLER_ERROR_RETURN_TYPE)
+                        story_url_fragment
+                    ),
+                    self.GET_HANDLER_ERROR_RETURN_TYPE
+                )
                 return None
 
             verified_classroom_url_fragment = (
                 classroom_config_services
-                .get_classroom_url_fragment_for_topic_id(topic.id))
+                .get_classroom_url_fragment_for_topic_id(topic.id)
+            )
             if classroom_url_fragment != verified_classroom_url_fragment:
-                url_substring = '%s/story/%s' % (
-                    topic_url_fragment, story_url_fragment)
+                url_substring = (
+                    "%s/story/%s" % (
+                        topic_url_fragment, story_url_fragment
+                    )
+                )
                 _redirect_based_on_return_type(
-                    self, '/learn/%s/%s' % (
+                    self,
+                    "/learn/%s/%s" % (
                         verified_classroom_url_fragment,
-                        url_substring),
-                    self.GET_HANDLER_ERROR_RETURN_TYPE)
+                        url_substring
+                    ),
+                    self.GET_HANDLER_ERROR_RETURN_TYPE
+                )
                 return None
             topic_rights = topic_fetchers.get_topic_rights(topic_id)
             topic_is_published = topic_rights.topic_is_published
             all_story_references = topic.get_all_story_references()
-            for reference in all_story_references:
                 if reference.story_id == story_id:
                     story_is_published = reference.story_is_published
 
@@ -4129,38 +4143,38 @@ def can_access_story_viewer_page_as_logged_in_user(
 
         story = story_fetchers.get_story_by_url_fragment(story_url_fragment)
 
-        if story is None:
-            _redirect_based_on_return_type(
-                self,
-                '/learn/%s/%s/story' %
-                (classroom_url_fragment, topic_url_fragment),
-                self.GET_HANDLER_ERROR_RETURN_TYPE)
-            return None
-
-        story_is_published = False
         topic_is_published = False
         topic_id = story.corresponding_topic_id
         story_id = story.id
-        user_actions_info = user_services.get_user_actions_info(self.user_id)
+        user_actions_info = (
+            user_services.get_user_actions_info(self.user_id))
         if topic_id:
             topic = topic_fetchers.get_topic_by_id(topic_id)
             if topic.url_fragment != topic_url_fragment:
                 _redirect_based_on_return_type(
                     self,
-                    '/learn/%s/%s/story/%s' % (
+                    "/learn/%s/%s/story/%s" % (
                         classroom_url_fragment,
                         topic.url_fragment,
-                        story_url_fragment),
-                    self.GET_HANDLER_ERROR_RETURN_TYPE)
+                        story_url_fragment
+                    ),
+                    self.GET_HANDLER_ERROR_RETURN_TYPE
+                )
                 return None
 
             verified_classroom_url_fragment = (
                 classroom_config_services
-                .get_classroom_url_fragment_for_topic_id(topic.id))
+                .get_classroom_url_fragment_for_topic_id(topic.id)
+            )
             if classroom_url_fragment != verified_classroom_url_fragment:
-                url_substring = '%s/story/%s' % (
-                    topic_url_fragment, story_url_fragment)
+                url_substring = (
+                    "%s/story/%s" % (
+                        topic_url_fragment, story_url_fragment
+                    )
+                )
                 _redirect_based_on_return_type(
+                    self,
+                    "/learn/%s/%s" % (
                     self, '/learn/%s/%s' % (
                         verified_classroom_url_fragment,
                         url_substring),
@@ -4596,6 +4610,53 @@ def can_play_entity(
     return test_can_play_entity
 
 
+def is_from_oppia_ml(
+    handler: Callable[..., _GenericHandlerFunctionReturnType]
+) -> Callable[..., _GenericHandlerFunctionReturnType]:
+    """Decorator to check whether the incoming request is from a valid Oppia-ML
+    VM instance.
+
+    Args:
+        handler: function. The function to be decorated.
+
+    Returns:
+        function. The newly decorated function that now can check if incoming
+        request is from a valid VM instance.
+    """
+
+    # Here we use type Any because this method can accept arbitrary number of
+    # arguments with different types.
+    @functools.wraps(handler)
+    def test_request_originates_from_valid_oppia_ml_instance(
+        self: base.OppiaMLVMHandler[Dict[str, str], Dict[str, str]],
+        **kwargs: Any
+    ) -> _GenericHandlerFunctionReturnType:
+        """Checks if the incoming request is from a valid Oppia-ML VM
+        instance.
+
+        Args:
+            **kwargs: *. Keyword arguments.
+
+        Returns:
+            *. The return value of the decorated function.
+
+        Raises:
+            UnauthorizedUserException. If incoming request is not from a valid
+                Oppia-ML VM instance.
+        """
+        oppia_ml_auth_info = (
+            self.extract_request_message_vm_id_and_signature())
+        if (oppia_ml_auth_info.vm_id == feconf.DEFAULT_VM_ID and
+                not constants.DEV_MODE):
+            raise self.UnauthorizedUserException
+        if not classifier_services.verify_signature(oppia_ml_auth_info):
+            raise self.UnauthorizedUserException
+
+        return handler(self, **kwargs)
+
+    return test_request_originates_from_valid_oppia_ml_instance
+
+
 def can_update_suggestion(
     handler: Callable[..., _GenericHandlerFunctionReturnType]
 ) -> Callable[..., _GenericHandlerFunctionReturnType]:
@@ -4664,12 +4725,14 @@ def can_update_suggestion(
 
         if suggestion.author_id == self.user_id:
             raise base.UserFacingExceptions.UnauthorizedUserException(
-                'The user, %s is not allowed to update self-created'
-                'suggestions.' % (user_services.get_username(self.user_id)))
-
-        if suggestion.suggestion_type not in (
-                feconf.CONTRIBUTOR_DASHBOARD_SUGGESTION_TYPES):
-            raise self.InvalidInputException('Invalid suggestion type.')
+            if user_services.can_review_translation_suggestions(
+                self.user_id,
+                language_code=suggestion.change_cmd.language_code
+            ):
+                return handler(self, suggestion_id, **kwargs)
+        elif suggestion.suggestion_type == (
+            feconf.SUGGESTION_TYPE_ADD_QUESTION
+        ):
 
         if suggestion.suggestion_type == (
                 feconf.SUGGESTION_TYPE_TRANSLATE_CONTENT):
