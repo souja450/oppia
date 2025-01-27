@@ -338,7 +338,7 @@ export class TopicManager extends BaseUser {
         );
       }
 
-      showMessage('Verified: Error 401 Unauthorized is displayed as expected.');
+      showMessage("warning",'Verified: Error 401 Unauthorized is displayed as expected.');
     } catch (error) {
       console.error(error.stack);
       throw error;
@@ -473,7 +473,7 @@ export class TopicManager extends BaseUser {
       if (this.isViewportAtMobileWidth()) {
         await this.clickOn(closeMobileFiltersButton);
       }
-      showMessage(`Filtered topics by status: ${status}`);
+      showMessage("warning",`Filtered topics by status: ${status}`);
     } catch (error) {
       console.error(error.stack);
       throw error;
@@ -495,7 +495,7 @@ export class TopicManager extends BaseUser {
       if (this.isViewportAtMobileWidth()) {
         await this.clickOn(closeMobileFiltersButton);
       }
-      showMessage(`Filtered topics by classroom: ${classroom}`);
+      showMessage("success",`Filtered topics by classroom: ${classroom}`);
     } catch (error) {
       console.error(error.stack);
       throw error;
@@ -520,7 +520,7 @@ export class TopicManager extends BaseUser {
       if (this.isViewportAtMobileWidth()) {
         await this.clickOn(closeMobileFiltersButton);
       }
-      showMessage(`Filtered topics by keyword: ${keyword}`);
+      showMessage("success",`Filtered topics by keyword: ${keyword}`);
     } catch (error) {
       console.error(error.stack);
       throw error;
@@ -542,7 +542,7 @@ export class TopicManager extends BaseUser {
       if (this.isViewportAtMobileWidth()) {
         await this.clickOn(closeMobileFiltersButton);
       }
-      showMessage(`Sorted topics by: ${sortOption}`);
+      showMessage("success",`Sorted topics by: ${sortOption}`);
     } catch (error) {
       console.error(error.stack);
       throw error;
@@ -566,7 +566,7 @@ export class TopicManager extends BaseUser {
         if (topicElements.length !== 0) {
           throw new Error('Expected no topics, but some were found.');
         }
-        showMessage('No topics found, as expected.');
+        showMessage("warning",'No topics found, as expected.');
         return;
       }
 
@@ -590,7 +590,7 @@ export class TopicManager extends BaseUser {
         );
       }
 
-      showMessage('Filtered topics match the expected topics.');
+      showMessage("success",'Filtered topics match the expected topics.');
     } catch (error) {
       console.error(error.stack);
       throw error;
@@ -619,7 +619,7 @@ export class TopicManager extends BaseUser {
       if (!topicNames.every((name, index) => name === expectedOrder[index])) {
         throw new Error('Topics are not in the expected order.');
       }
-      showMessage('Topics are in the expected order.');
+      showMessage("success",'Topics are in the expected order.');
     } catch (error) {
       console.error(error.stack);
       throw error;
@@ -731,7 +731,7 @@ export class TopicManager extends BaseUser {
         );
       }
 
-      showMessage('Verified: Topic name field is disabled as expected.');
+      showMessage("success",'Verified: Topic name field is disabled as expected.');
     } catch (error) {
       console.error(error.stack);
       throw error;
@@ -788,7 +788,7 @@ export class TopicManager extends BaseUser {
         }
       }
     }
-    showMessage('Delete button is not available in the topic');
+    showMessage("success",'Delete button is not available in the topic');
   }
 
   /**
@@ -804,7 +804,7 @@ export class TopicManager extends BaseUser {
       throw new Error('Create topic button is present, which is not expected.');
     } catch (error) {
       if (error instanceof puppeteer.errors.TimeoutError) {
-        showMessage('Create topic button is not present as expected.');
+        showMessage("success",'Create topic button is not present as expected.');
       } else {
         throw error;
       }
@@ -969,7 +969,7 @@ export class TopicManager extends BaseUser {
       );
 
       if (description.trim() === skillName) {
-        showMessage(`Found skill with name ${skillName}`);
+        showMessage("success",`Found skill with name ${skillName}`);
         return skillItem;
       }
     }
@@ -1266,7 +1266,7 @@ export class TopicManager extends BaseUser {
       if (this.isViewportAtMobileWidth()) {
         await this.clickOn(closeMobileFiltersButton);
       }
-      showMessage(`Filtered skill by status: ${status}`);
+      showMessage("success",`Filtered skill by status: ${status}`);
     } catch (error) {
       console.error(error.stack);
       throw error;
@@ -1292,7 +1292,7 @@ export class TopicManager extends BaseUser {
       if (this.isViewportAtMobileWidth()) {
         await this.clickOn(closeMobileFiltersButton);
       }
-      showMessage(`Filtered skills by keyword: ${keyword}`);
+      showMessage("success",`Filtered skills by keyword: ${keyword}`);
     } catch (error) {
       console.error(error.stack);
       throw error;
@@ -1315,7 +1315,7 @@ export class TopicManager extends BaseUser {
       if (this.isViewportAtMobileWidth()) {
         await this.clickOn(closeMobileFiltersButton);
       }
-      showMessage(`Sorted skills by: ${sortOption}`);
+      showMessage("success",`Sorted skills by: ${sortOption}`);
     } catch (error) {
       console.error(error.stack);
       throw error;
@@ -1359,7 +1359,7 @@ export class TopicManager extends BaseUser {
       await this.page.waitForSelector(itemsPerPageDropdown);
       await this.page.waitForSelector(itemsPerPageDropdown);
       await this.page.select(itemsPerPageDropdown, itemsPerPage.toString());
-      showMessage(`Paginator adjusted to show ${itemsPerPage} items per page.`);
+      showMessage("success",`Paginator adjusted to show ${itemsPerPage} items per page.`);
     } catch (error) {
       console.error(error.stack);
       throw error;
@@ -1407,7 +1407,7 @@ export class TopicManager extends BaseUser {
       }
 
       showMessage(
-        'Page change status after clicking the next button is as expected.'
+        "success",'Page change status after clicking the next button is as expected.'
       );
     } catch (error) {
       console.error(error.stack);
@@ -1433,7 +1433,7 @@ export class TopicManager extends BaseUser {
         if (topicElements.length !== 0) {
           throw new Error('Expected no skills, but some were found.');
         }
-        showMessage('No skills found, as expected.');
+        showMessage("warning",'No skills found, as expected.');
         return;
       }
 
@@ -1457,7 +1457,7 @@ export class TopicManager extends BaseUser {
         );
       }
 
-      showMessage('Filtered skills match the expected skills.');
+      showMessage("success",'Filtered skills match the expected skills.');
     } catch (error) {
       console.error(error.stack);
       throw error;
@@ -1486,7 +1486,7 @@ export class TopicManager extends BaseUser {
       if (!topicNames.every((name, index) => name === expectedOrder[index])) {
         throw new Error('Skills are not in the expected order.');
       }
-      showMessage('Skills are in the expected order.');
+      showMessage("success",'Skills are in the expected order.');
     } catch (error) {
       console.error(error.stack);
       throw error;
@@ -1534,7 +1534,7 @@ export class TopicManager extends BaseUser {
       }
 
       showMessage(
-        'Page change status after clicking the next button is as expected.'
+         "success",'Page change status after clicking the next button is as expected.'
       );
     } catch (error) {
       console.error(error.stack);
@@ -1555,7 +1555,7 @@ export class TopicManager extends BaseUser {
       throw new Error('Create skill button is present, which is not expected.');
     } catch (error) {
       if (error instanceof puppeteer.errors.TimeoutError) {
-        showMessage('Create skill button is not present as expected.');
+        showMessage("warning",'Create skill button is not present as expected.');
       } else {
         throw error;
       }
@@ -1616,7 +1616,7 @@ export class TopicManager extends BaseUser {
         }
       }
     }
-    showMessage('Delete button is not available in the skill');
+    showMessage("warning",'Delete button is not available in the skill');
   }
 
   /**
@@ -1728,7 +1728,7 @@ export class TopicManager extends BaseUser {
     }
 
     showMessage(
-      `The worked example is ${isPresent ? '' : 'not'} present as expected.`
+      "warning",`The worked example is ${isPresent ? '' : 'not'} present as expected.`
     );
   }
 
@@ -1815,7 +1815,7 @@ export class TopicManager extends BaseUser {
     }
 
     showMessage(
-      `The misconception is ${isPresent ? '' : 'not'} present as expected.`
+      "warning",`The misconception is ${isPresent ? '' : 'not'} present as expected.`
     );
   }
 
@@ -1875,7 +1875,7 @@ export class TopicManager extends BaseUser {
       await this.clearAllTextFrom(rteSelector);
       await this.type(rteSelector, updatedMaterial);
       await this.clickOn(saveConceptCardSelector);
-      showMessage('Updated review material');
+      showMessage("warning",'Updated review material');
     } catch (error) {
       console.error(error);
       throw error;
@@ -1933,7 +1933,7 @@ export class TopicManager extends BaseUser {
         throw new Error('Confirm skill selection button selector not found');
       }
       await this.clickOn(confirmSkillSelectionButtonSelector);
-      showMessage(`Added prerequisite skill: ${skillName}`);
+      showMessage("success",`Added prerequisite skill: ${skillName}`);
     } catch (error) {
       console.error(error);
       throw error;
@@ -1966,7 +1966,7 @@ export class TopicManager extends BaseUser {
           if (removeIcon) {
             await this.waitForElementToBeClickable(removeIcon);
             await removeIcon.click();
-            showMessage(`Removed prerequisite skill: ${skillName}`);
+            showMessage("success",`Removed prerequisite skill: ${skillName}`);
             return;
           }
         }
@@ -2029,7 +2029,7 @@ export class TopicManager extends BaseUser {
     }
 
     showMessage(
-      `The prerequisite skill is ${isPresent ? '' : 'not'} present as expected.`
+      "success",`The prerequisite skill is ${isPresent ? '' : 'not'} present as expected.`
     );
   }
 
@@ -2094,7 +2094,7 @@ export class TopicManager extends BaseUser {
     });
     await this.clickOn(closeSaveModalButtonSelector);
     await this.expectToastMessageToBe('Changes Saved.');
-    showMessage('Skill updated successful');
+    showMessage("success",'Skill updated successful');
   }
 
   /**
@@ -2262,7 +2262,7 @@ export class TopicManager extends BaseUser {
               await this.waitForElementToBeClickable(deleteButton);
               await deleteButton.click();
               showMessage(
-                `Subtopic ${subtopicName} deleted from the topic ${topicName}.`
+                "error",`Subtopic ${subtopicName} deleted from the topic ${topicName}.`
               );
               return;
             }
@@ -2316,7 +2316,7 @@ export class TopicManager extends BaseUser {
             );
           }
           showMessage(
-            `Subtopic ${subtopicName} is ${shouldExist ? 'found' : 'not found'} in topic ${topicName}, as expected.`
+            "warning",`Subtopic ${subtopicName} is ${shouldExist ? 'found' : 'not found'} in topic ${topicName}, as expected.`
           );
           return;
         }
@@ -2329,7 +2329,7 @@ export class TopicManager extends BaseUser {
       }
 
       showMessage(
-        `Subtopic ${subtopicName} is ${shouldExist ? 'found' : 'not found'} in topic ${topicName}, as expected.`
+        "warning",`Subtopic ${subtopicName} is ${shouldExist ? 'found' : 'not found'} in topic ${topicName}, as expected.`
       );
     } catch (error) {
       const newError = new Error(
@@ -2541,7 +2541,7 @@ export class TopicManager extends BaseUser {
             );
           }
           showMessage(
-            `Story ${storyName} is ${shouldExist ? 'found' : 'not found'} in topic ${topicName}, as expected.`
+            "warning",`Story ${storyName} is ${shouldExist ? 'found' : 'not found'} in topic ${topicName}, as expected.`
           );
           return;
         }
@@ -2553,7 +2553,7 @@ export class TopicManager extends BaseUser {
         );
       }
       showMessage(
-        `Story ${storyName} is ${shouldExist ? 'found' : 'not found'} in topic ${topicName}, as expected.`
+        "warning",`Story ${storyName} is ${shouldExist ? 'found' : 'not found'} in topic ${topicName}, as expected.`
       );
     } catch (error) {
       const newError = new Error(
@@ -2599,7 +2599,7 @@ export class TopicManager extends BaseUser {
               await deleteButton.click();
               await this.clickOn(confirmStoryDeletionButton);
               showMessage(
-                `Story ${storyName} deleted from the topic ${topicName}.`
+                "warning",`Story ${storyName} deleted from the topic ${topicName}.`
               );
               return;
             }
@@ -2649,7 +2649,7 @@ export class TopicManager extends BaseUser {
         if (title === chapterName) {
           await titleElement.click();
           await this.waitForStaticAssetsToLoad();
-          showMessage(`Chapter ${chapterName} opened in chapter editor.`);
+          showMessage("warning",`Chapter ${chapterName} opened in chapter editor.`);
 
           // Collapsing all the collapsible card of chapter editor in the mobile viewport.
           if (this.isViewportAtMobileWidth()) {
@@ -2834,7 +2834,7 @@ export class TopicManager extends BaseUser {
             );
           }
           showMessage(
-            `Chapter ${chapterName} is ${shouldExist ? 'found' : 'not found'} in story ${storyName}, as expected.`
+            "warning",`Chapter ${chapterName} is ${shouldExist ? 'found' : 'not found'} in story ${storyName}, as expected.`
           );
 
           return;
@@ -2847,7 +2847,7 @@ export class TopicManager extends BaseUser {
         );
       }
       showMessage(
-        `Chapter ${chapterName} is ${shouldExist ? 'found' : 'not found'} in story ${storyName}, as expected.`
+        "warning",`Chapter ${chapterName} is ${shouldExist ? 'found' : 'not found'} in story ${storyName}, as expected.`
       );
     } catch (error) {
       const newError = new Error(
@@ -2908,7 +2908,7 @@ export class TopicManager extends BaseUser {
               await this.clickOn(confirmDeleteChapterButton);
 
               showMessage(
-                `Chapter ${chapterName} deleted from the story ${storyName}.`
+                "success",`Chapter ${chapterName} deleted from the story ${storyName}.`
               );
               return;
             }

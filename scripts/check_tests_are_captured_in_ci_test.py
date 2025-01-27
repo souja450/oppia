@@ -23,7 +23,9 @@ import tempfile
 
 from core.tests import test_utils
 from scripts import check_tests_are_captured_in_ci
-
+import unittest
+from scripts.check_ci_test_suites_to_run import colorize_error_output
+from scripts.utils.color_utils import ColorUtils
 from typing import List
 
 ACCEPTANCE_TEST_SUITES: List[check_tests_are_captured_in_ci.TestSuiteDict] = [ # pylint: disable=line-too-long
@@ -60,7 +62,14 @@ var suites = {
 }
 """
 
+class TestColorizeErrorOutput(unittest.TestCase):
+    def test_colorize_error_output(self):
+        message = "This is an error."
+        expected_output = f"{ColorUtils.RED}This is an error.{ColorUtils.RESET}"
+        self.assertEqual(colorize_error_output(message), expected_output)
 
+if __name__ == "__main__":
+    unittest.main()
 class CheckTestsAreCapturedInCiTest(test_utils.GenericTestBase):
     """Tests the methods for checking if tests are captured in CI."""
 

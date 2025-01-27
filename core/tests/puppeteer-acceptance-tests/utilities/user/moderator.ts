@@ -60,7 +60,7 @@ export class Moderator extends BaseUser {
         `Expected ${expectedCount} commits, but found ${actualCount}`
       );
     }
-    showMessage('Recent commits count matches expected count.');
+    showMessage("success",'Recent commits count matches expected count.');
   }
 
   /**
@@ -132,7 +132,7 @@ export class Moderator extends BaseUser {
         throw new Error(`Commit does not have property: ${property}`);
       }
     }
-    showMessage(`Commit ${commitIndex} has all expected properties.`);
+    showMessage("success",`Commit ${commitIndex} has all expected properties.`);
   }
 
   /**
@@ -156,7 +156,7 @@ export class Moderator extends BaseUser {
         'User is not on the feedback tab of the exploration editor'
       );
     }
-    showMessage('User is on the feedback tab of the exploration editor.');
+    showMessage("success",'User is on the feedback tab of the exploration editor.');
   }
 
   /**
@@ -173,7 +173,7 @@ export class Moderator extends BaseUser {
         `Expected ${expectedCount} feedback messages, but found ${actualCount}`
       );
     }
-    showMessage('Feedback messages count matches expected count.');
+    showMessage("success",'Feedback messages count matches expected count.');
   }
 
   /**
@@ -227,7 +227,7 @@ export class Moderator extends BaseUser {
       }
     }
     showMessage(
-      `Feedback message ${messageIndex} has all expected properties.`
+      "success",`Feedback message ${messageIndex} has all expected properties.`
     );
   }
 
@@ -265,7 +265,7 @@ export class Moderator extends BaseUser {
         'document.querySelector(".e2e-test-toast-message") !== null',
         {timeout: 5000}
       );
-      showMessage('Activity featured successfully.');
+      showMessage("success",'Activity featured successfully.');
     } catch (error) {
       throw new Error('Failed to save the featured activities');
     }
@@ -317,7 +317,7 @@ export class Moderator extends BaseUser {
         'document.querySelector(".e2e-test-toast-message") !== null',
         {timeout: 5000}
       );
-      showMessage('Activity unfeatured successfully.');
+      showMessage("success",'Activity unfeatured successfully.');
     } catch (error) {
       throw new Error('Failed to save the unfeatured activities');
     }

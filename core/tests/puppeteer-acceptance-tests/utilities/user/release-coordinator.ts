@@ -86,7 +86,7 @@ export class ReleaseCoordinator extends BaseUser {
         visible: true,
         timeout: 10000,
       });
-      showMessage('Successfully navigated to features tab.');
+      showMessage("success",'Successfully navigated to features tab.');
     } catch (error) {
       console.error('Failed to navigate to features tab:', error);
       throw error;
@@ -170,7 +170,7 @@ export class ReleaseCoordinator extends BaseUser {
           }
 
           showMessage(
-            `Feature flag: "${featureName}" rollout percentage has been set to ${percentage}%.`
+            "success",`Feature flag: "${featureName}" rollout percentage has been set to ${percentage}%.`
           );
           return;
         }
@@ -239,7 +239,7 @@ export class ReleaseCoordinator extends BaseUser {
           }
 
           showMessage(
-            `Feature flag: "${featureName}" has been enabled successfully.`
+            "success",`Feature flag: "${featureName}" has been enabled successfully.`
           );
           return;
         }
@@ -284,7 +284,7 @@ export class ReleaseCoordinator extends BaseUser {
       el => el.textContent
     );
     if (statusMessage === ' Success! ') {
-      showMessage('Promo bar message saved successfully.');
+      showMessage("success",'Promo bar message saved successfully.');
     }
   }
 
@@ -306,7 +306,7 @@ export class ReleaseCoordinator extends BaseUser {
       el => el.textContent
     );
     expect(actualMessage).toEqual(expectedMessage);
-    showMessage('Promo message is as expected.');
+    showMessage("success",'Promo message is as expected.');
     return;
   }
 
@@ -330,7 +330,7 @@ export class ReleaseCoordinator extends BaseUser {
       el => el.textContent?.trim()
     );
     if (actualMessage === expectedMessage.trim()) {
-      showMessage('Action was successful.');
+      showMessage("success",'Action was successful.');
       return;
     }
     throw new Error(
@@ -392,7 +392,7 @@ export class ReleaseCoordinator extends BaseUser {
       );
     }
 
-    showMessage('Memory cache profile has all expected properties.');
+    showMessage("success",'Memory cache profile has all expected properties.');
   }
 
   /**
@@ -441,7 +441,7 @@ export class ReleaseCoordinator extends BaseUser {
       const element = document.querySelector(selector) as HTMLElement;
       element?.click();
     }, startNewJobConfirmationButton);
-    showMessage('Job started');
+    showMessage("success",'Job started');
   }
 
   /**
@@ -461,7 +461,7 @@ export class ReleaseCoordinator extends BaseUser {
       }
       throw error;
     }
-    showMessage('Job completed');
+    showMessage("success",'Job completed');
   }
 
   /**
@@ -499,7 +499,7 @@ export class ReleaseCoordinator extends BaseUser {
       if (clipboardData !== output) {
         throw new Error('Data was not copied correctly');
       }
-      showMessage('Data was copied correctly');
+      showMessage("success",'Data was copied correctly');
 
       return output;
     } catch (error) {
@@ -526,7 +526,7 @@ export class ReleaseCoordinator extends BaseUser {
       }
 
       if (actualOutput === expectedOutput) {
-        showMessage('Output is as expected');
+        showMessage("success",'Output is as expected');
       } else {
         throw new Error(`Output is not as expected. Expected: ${expectedOutput} 
         Actual: ${actualOutput}`);
@@ -543,7 +543,7 @@ export class ReleaseCoordinator extends BaseUser {
    */
   async closeOutputModal(): Promise<void> {
     await this.clickOn('Close');
-    showMessage('Output modal closed');
+    showMessage("success",'Output modal closed');
   }
 
   /**
@@ -574,7 +574,7 @@ export class ReleaseCoordinator extends BaseUser {
     }
 
     showMessage(
-      `Dummy handler is ${enabled ? 'enabled' : 'disabled'}, as expected`
+      "warning",`Dummy handler is ${enabled ? 'enabled' : 'disabled'}, as expected`
     );
   }
 }

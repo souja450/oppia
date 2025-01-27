@@ -22,6 +22,12 @@ import os
 import shutil
 import subprocess
 import sys
+# Ensure colorama is installed
+try:
+    from colorama import init
+except ImportError:
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'colorama'])
+    from colorama import init
 
 from core.constants import constants
 from scripts import build
@@ -30,13 +36,21 @@ from scripts import servers
 
 from typing import Final, List, Optional, Tuple
 
+from scripts.common import process_logs_and_highlight_errors
+
+
+
+# Ensure color support in logs
+os.environ['FORCE_COLOR'] = '1'
+
 _PARSER: Final = argparse.ArgumentParser(
     description="""
 Run this script from the oppia root folder:
    python -m scripts.run_acceptance_tests
 
 The root folder MUST be named 'oppia'.
-""")
+"""
+)
 
 _PARSER.add_argument(
     '--skip-build',
@@ -110,11 +124,13 @@ def run_tests(args: argparse.Namespace) -> Tuple[List[bytes], int]:
             """
             Oppia server is already running. Try shutting all the servers down
             before running the script.
-        """)
+            """
+        )
 
     with contextlib.ExitStack() as stack:
         dev_mode = not args.prod_env
 
+        # Compile TypeScript files
         compile_test_ts_files()
         if args.skip_build:
             common.modify_constants(prod_env=args.prod_env)
@@ -127,56 +143,57 @@ def run_tests(args: argparse.Namespace) -> Tuple[List[bytes], int]:
         if constants.EMULATOR_MODE:
             stack.enter_context(servers.managed_firebase_auth_emulator())
             stack.enter_context(
-                servers.managed_cloud_datastore_emulator(clear_datastore=True))
+                servers.managed_cloud_datastore_emulator(clear_datastore=True)
+            )
 
         app_yaml_path = 'app.yaml' if args.prod_env else 'app_dev.yaml'
-        stack.enter_context(servers.managed_dev_appserver(
-            app_yaml_path,
-            port=common.GAE_PORT_FOR_E2E_TESTING,
-            log_level=args.server_log_level,
-            # Automatic restart can be disabled since we don't expect code
-            # changes to happen while the acceptance tests are running.
-            automatic_restart=False,
-            skip_sdk_update_check=True,
-            env={
-                **os.environ,
-                'PORTSERVER_ADDRESS': common.PORTSERVER_SOCKET_FILEPATH,
-                'PIP_NO_DEPS': 'True'
-            }))
+        stack.enter_context(
+            servers.managed_dev_appserver(
+                app_yaml_path,
+                port=common.GAE_PORT_FOR_E2E_TESTING,
+                log_level=args.server_log_level,
+                automatic_restart=False,
+                skip_sdk_update_check=True,
+                env={
+                    **os.environ,
+                    'PORTSERVER_ADDRESS': common.PORTSERVER_SOCKET_FILEPATH,
+                    'PIP_NO_DEPS': 'True',
+                },
+            )
+        )
 
         proc = stack.enter_context(servers.managed_acceptance_tests_server(
             suite_name=args.suite,
             headless=args.headless,
             mobile=args.mobile,
             prod_env=args.prod_env,
-            stdout=subprocess.PIPE))
+            stdout=subprocess.PIPE
+        ))
 
         print('Servers have come up.\n')
 
         output_lines = []
         while True:
-            # Keep reading lines until an empty string is returned. Empty
-            # strings signal that the process has ended.
-            for line in iter(proc.stdout.readline, b''):
-                if isinstance(line, str):
-                    # Although our unit tests always provide unicode strings,
-                    # the actual server needs this failsafe since it can output
-                    # non-unicode strings.
-                    line = line.encode('utf-8')  # pragma: no cover
-                output_lines.append(line.rstrip())
-                # Replaces non-ASCII characters with '?'.
-                common.write_stdout_safe(line.decode('ascii', errors='replace'))
-            # The poll() method returns None while the process is running,
-            # otherwise it returns the return code of the process (an int).
-            if proc.poll() is not None:
+            line = proc.stdout.readline()
+            if not line:
                 break
+            line = line.decode('utf-8').strip()
+            output_lines.append(line)
 
-        return_value = output_lines, proc.returncode
-    return return_value
+        
+
+        # Highlight the logs
+        raw_logs = "\n".join(output_lines)
+        highlighted_logs = process_logs_and_highlight_errors(raw_logs)
+        print(highlighted_logs)
+
+
+        return output_lines, proc.returncode
 
 
 def main(args: Optional[List[str]] = None) -> None:
     """Run acceptance tests."""
+    
     parsed_args = _PARSER.parse_args(args=args)
 
     with servers.managed_portserver():

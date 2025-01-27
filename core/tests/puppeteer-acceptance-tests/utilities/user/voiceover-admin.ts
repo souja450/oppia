@@ -58,7 +58,7 @@ export class VoiceoverAdmin extends BaseUser {
       await this.clickOn(explorationSettingsTab);
     }
 
-    showMessage('Navigation to settings tab is successful.');
+    showMessage("success",'Navigation to settings tab is successful.');
   }
 
   /**
@@ -80,7 +80,7 @@ export class VoiceoverAdmin extends BaseUser {
       hidden: true,
     });
 
-    showMessage('Tutorial pop-up is closed.');
+    showMessage("success",'Tutorial pop-up is closed.');
   }
 
   /**
@@ -96,7 +96,7 @@ export class VoiceoverAdmin extends BaseUser {
     const editorUrl = `${baseURL}/create/${explorationId}`;
     await this.goto(editorUrl);
 
-    showMessage('Navigation to exploration editor is successful.');
+    showMessage("success",'Navigation to exploration editor is successful.');
   }
 
   /**
@@ -116,7 +116,7 @@ export class VoiceoverAdmin extends BaseUser {
       );
     } else {
       showMessage(
-        `Voiceover artist '${artistUsername}' does not exist and can be added.`
+        "success",`Voiceover artist '${artistUsername}' does not exist and can be added.`
       );
     }
   }
@@ -144,9 +144,9 @@ export class VoiceoverAdmin extends BaseUser {
           `div.e2e-test-voice-artist-${voiceArtists[i]}`,
           {visible: true}
         );
-        showMessage(voiceArtists[i] + ' has been added as a voice artist.');
+        showMessage("success",voiceArtists[i] + ' has been added as a voice artist.');
       } catch (error) {
-        showMessage(voiceArtists[i] + ' is not added.');
+        showMessage("success",voiceArtists[i] + ' is not added.');
       }
     }
   }
@@ -168,7 +168,7 @@ export class VoiceoverAdmin extends BaseUser {
         `Expected error message to be ${expectedErrorMessage} but got ${errorMessage}`
       );
     } else {
-      showMessage(`Toast Error Message: ${errorMessage}`);
+      showMessage("success",`Toast Error Message: ${errorMessage}`);
     }
   }
 
@@ -194,7 +194,7 @@ export class VoiceoverAdmin extends BaseUser {
       );
     }
     showMessage(
-      `${artistUsername} added as voiceover artist! Current voice artists for this exploration are: ${allVoiceoverArtists}`
+      "success",`${artistUsername} added as voiceover artist! Current voice artists for this exploration are: ${allVoiceoverArtists}`
     );
   }
 
@@ -226,7 +226,7 @@ export class VoiceoverAdmin extends BaseUser {
       );
     } else {
       showMessage(
-        `Confirmed: Voiceover artist '${artistUsername}' is still not listed.`
+        "success",`Confirmed: Voiceover artist '${artistUsername}' is still not listed.`
       );
     }
   }

@@ -494,7 +494,7 @@ export class BaseUser {
     const explorationUrlAfterPublished = `${baseURL}/create/${explorationId}#/gui/Introduction`;
     try {
       await this.goto(explorationUrlAfterPublished);
-      showMessage('Exploration is accessible with the URL, i.e. published.');
+      showMessage("success",'Exploration is accessible with the URL, i.e. published.');
     } catch (error) {
       throw new Error('The exploration is not public.');
     }
@@ -515,7 +515,7 @@ export class BaseUser {
       await this.page.goto(explorationUrlAfterPublished);
       throw new Error('The exploration is still public.');
     } catch (error) {
-      showMessage('The exploration is not accessible with the URL.');
+      showMessage("error",'The exploration is not accessible with the URL.');
     }
   }
 
@@ -579,7 +579,7 @@ export class BaseUser {
         countStableSizeIterations = 0;
       }
       if (countStableSizeIterations >= minStableSizeIterations) {
-        showMessage('Page rendered fully.');
+        showMessage('warning','Page rendered fully.');
         break;
       }
 
@@ -701,7 +701,7 @@ export class BaseUser {
     } catch (error) {
       if (error.message.includes('Timeout')) {
         showMessage(
-          'Network did not become idle within the specified timeout, but we can continue.'
+          'error','Network did not become idle within the specified timeout, but we can continue.'
         );
       } else {
         throw error;

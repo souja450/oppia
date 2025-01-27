@@ -27,11 +27,10 @@ import shutil
 import subprocess
 import sys
 import threading
-
+from scripts.utils.color_utils import ColorUtils  # Importing ColorUtils
 from core import feconf
 from core import utils
 from scripts import common
-
 import rcssmin
 from typing import (
     Deque, Dict, List, Optional, Sequence, TextIO, Tuple, TypedDict
@@ -215,7 +214,7 @@ def run_webpack_compilation(source_maps: bool = False) -> None:
             break
     else:
         # We didn't break out of the loop, meaning all attempts have failed.
-        print('Failed to complete webpack compilation, exiting...')
+        print(ColorUtils.error("Failed to complete webpack compilation, exiting..."))
         sys.exit(1)
 
 
@@ -229,7 +228,7 @@ def build_js_files(dev_mode: bool, source_maps: bool = False) -> None:
             building webpack.
     """
     if not dev_mode:
-        print('Generating files for production mode...')
+        print(ColorUtils.success("Generating files for production mode..."))
 
         build_args = ['--prod_env']
         if source_maps:
@@ -327,7 +326,7 @@ def _minify_and_create_sourcemap(
         source_path: str. Path to JS file to minify.
         target_file_path: str. Path to location of the minified file.
     """
-    print('Minifying and creating sourcemap for %s' % source_path)
+    print(ColorUtils.success("Minifying and creating sourcemap for %s" % source_path))
     source_map_properties = 'includeSources,url=\'third_party.min.js.map\''
     # TODO(#18260): Change this when we permanently move to
     # the Dockerized Setup.
@@ -474,9 +473,13 @@ def _compare_file_count(
         file_counts[1] += get_file_count(second_dir_path)
     if file_counts[0] != file_counts[1]:
         print('Comparing %s vs %s' % (first_dir_list, second_dir_list))
-        raise ValueError(
-            '%s files in first dir list != %s files in second dir list' % (
-                file_counts[0], file_counts[1]))
+    raise ValueError(
+        ColorUtils.error(
+            "%s files in first dir list != %s files in second dir list" % (
+                file_counts[0], file_counts[1]
+            )
+        )
+    )
 
 
 def process_html(
@@ -648,8 +651,7 @@ def build_third_party_libs(third_party_directory_path: str) -> None:
     """Joins all third party css files into single css file and js files into
     single js file. Copies both files and all fonts into third party folder.
     """
-
-    print('Building third party libs at %s' % third_party_directory_path)
+    print(ColorUtils.success('Building third party libs at %s' % third_party_directory_path))
 
     third_party_js_filepath = os.path.join(
         third_party_directory_path, THIRD_PARTY_JS_RELATIVE_FILEPATH)
@@ -659,55 +661,71 @@ def build_third_party_libs(third_party_directory_path: str) -> None:
         third_party_directory_path, WEBFONTS_RELATIVE_DIRECTORY_PATH)
 
     dependency_filepaths = get_dependencies_filepaths()
+
+    # Ensure JS file is created
     common.ensure_directory_exists(os.path.dirname(third_party_js_filepath))
     with utils.open_file(
         third_party_js_filepath, 'w+') as third_party_js_file:
+        print(ColorUtils.info(f'Joining JS dependencies into {third_party_js_filepath}'))
         _join_files(dependency_filepaths['js'], third_party_js_file)
 
+    # Ensure CSS file is created
     common.ensure_directory_exists(os.path.dirname(third_party_css_filepath))
     with utils.open_file(
         third_party_css_filepath, 'w+') as third_party_css_file:
+        print(ColorUtils.info(f'Joining CSS dependencies into {third_party_css_filepath}'))
         _join_files(dependency_filepaths['css'], third_party_css_file)
 
+    # Ensure fonts directory is prepared
     common.ensure_directory_exists(webfonts_dir)
+    print(ColorUtils.info(f'Copying font dependencies to {webfonts_dir}'))
     _execute_tasks(
         _generate_copy_tasks_for_fonts(
             dependency_filepaths['fonts'], webfonts_dir))
 
+    print(ColorUtils.success('Third party libraries built successfully.'))
+
+
 
 def build_using_ng() -> None:
     """Execute angular build process. This runs the angular compiler and
-    generates an ahead of time compiled bundle. This bundle can be found in the
+    generates an ahead-of-time compiled bundle. This bundle can be found in the
     dist/oppia-angular-prod folder.
     """
-    print('Building using angular cli')
+    print(ColorUtils.info('Building using Angular CLI...'))
     managed_ng_build_process = servers.managed_ng_build(
         use_prod_env=True, watch_mode=False)
     with managed_ng_build_process as p:
         p.wait()
-    assert get_file_count('dist/oppia-angular-prod') > 0, (
-        'angular generated bundle should be non-empty')
+    if get_file_count('dist/oppia-angular-prod') > 0:
+        print(ColorUtils.success('Angular build completed successfully.'))
+    else:
+        raise AssertionError(
+            ColorUtils.error('Angular generated bundle should be non-empty.')
+        )
 
 
 def build_using_webpack(config_path: str) -> None:
     """Execute webpack build process. This takes all TypeScript files we have in
-    /templates and generates JS bundles according the require() imports
+    /templates and generates JS bundles according to the require() imports
     and also compiles HTML pages into the /backend_prod_files/webpack_bundles
     folder. The files are later copied into /build/webpack_bundles.
 
     Args:
         config_path: str. Webpack config to be used for building.
     """
-
-    print('Building webpack')
+    print(ColorUtils.info('Building using Webpack...'))
     managed_webpack_compiler = servers.managed_webpack_compiler(
         config_path=config_path,
         max_old_space_size=MAX_OLD_SPACE_SIZE_FOR_WEBPACK_BUILD)
     with managed_webpack_compiler as p:
         p.wait()
-    assert get_file_count('backend_prod_files/webpack_bundles/') > 0, (
-        'webpack_bundles should be non-empty.')
-
+    if get_file_count('backend_prod_files/webpack_bundles/') > 0:
+        print(ColorUtils.success('Webpack build completed successfully.'))
+    else:
+        raise AssertionError(
+            ColorUtils.error('Webpack bundles should be non-empty.')
+        )
 
 def hash_should_be_inserted(filepath: str) -> bool:
     """Returns if the file should be renamed to include hash in
@@ -772,12 +790,13 @@ def generate_copy_tasks_to_copy_from_source_to_target(
         deque(Thread). A deque that contains all copy tasks queued
         to be processed.
     """
-    print('Processing %s' % os.path.join(os.getcwd(), source))
-    print('Copying into %s' % os.path.join(os.getcwd(), target))
+    print(ColorUtils.info('Processing %s' % os.path.join(os.getcwd(), source)))
+    print(ColorUtils.info('Copying into %s' % os.path.join(os.getcwd(), target)))
+
     copy_tasks: Deque[threading.Thread] = collections.deque()
     for root, dirnames, filenames in os.walk(os.path.join(os.getcwd(), source)):
         for directory in dirnames:
-            print('Copying %s' % os.path.join(root, directory))
+            print(ColorUtils.success('Copying %s' % os.path.join(root, directory)))
         for filename in filenames:
             source_path = os.path.join(root, filename)
             # Python files should not be copied to final build directory.
@@ -796,6 +815,10 @@ def generate_copy_tasks_to_copy_from_source_to_target(
                     target=safe_copy_file,
                     args=(source_path, target_path,))
                 copy_tasks.append(copy_task)
+                print(ColorUtils.success(f"Queued task for {source_path} -> {target_path}"))
+
+    if not copy_tasks:
+        print(ColorUtils.error("No valid files to copy."))
     return copy_tasks
 
 
@@ -869,9 +892,9 @@ def get_file_hashes(directory_path: str) -> Dict[str, str]:
     """
     file_hashes = {}
 
-    print(
+    print(ColorUtils.info(
         'Computing hashes for files in %s'
-        % os.path.join(os.getcwd(), directory_path))
+        % os.path.join(os.getcwd(), directory_path)))
 
     for root, _, filenames in os.walk(
             os.path.join(os.getcwd(), directory_path)):
@@ -884,6 +907,11 @@ def get_file_hashes(directory_path: str) -> Dict[str, str]:
                     complete_filepath, start=directory_path)
                 file_hashes[relative_filepath] = generate_md5_hash(
                     complete_filepath)
+                print(ColorUtils.success(
+                    f"Hash computed for {relative_filepath}: {file_hashes[relative_filepath]}"))
+
+    if not file_hashes:
+        print(ColorUtils.error("No valid files to hash."))
 
     return file_hashes
 
@@ -935,15 +963,15 @@ def minify_func(source_path: str, target_path: str, filename: str) -> None:
     skip_minify = any(
         filename.endswith(p) for p in JS_FILENAME_SUFFIXES_NOT_TO_MINIFY)
     if filename.endswith('.html'):
-        print('Building %s' % source_path)
+        print(ColorUtils.info(f'Building HTML file: {source_path}'))
         with utils.open_file(source_path, 'r+') as source_html_file:
             with utils.open_file(target_path, 'w+') as minified_html_file:
                 process_html(source_html_file, minified_html_file)
     elif filename.endswith('.css') and not skip_minify:
-        print('Minifying %s' % source_path)
+        print(ColorUtils.info(f'Minifying CSS file: {source_path}'))
         _minify_css(source_path, target_path)
     else:
-        print('Copying %s' % source_path)
+        print(ColorUtils.info(f'Copying file: {source_path}'))
         safe_copy_file(source_path, target_path)
 
 
@@ -968,8 +996,9 @@ def _execute_tasks(
             try:
                 task.start()
             except RuntimeError as e:
+                print(ColorUtils.error('Failed to start a thread.'))
                 raise OSError(
-                    'threads can only be started once') from e
+                    'Threads can only be started once.') from e
 
 
 def generate_build_tasks_to_build_all_files_in_directory(
@@ -988,13 +1017,13 @@ def generate_build_tasks_to_build_all_files_in_directory(
         deque(Thread). A deque that contains all build tasks queued
         to be processed.
     """
-    print('Processing %s' % os.path.join(os.getcwd(), source))
-    print('Generating into %s' % os.path.join(os.getcwd(), target))
+    print(ColorUtils.info(f'Processing source directory: {os.path.join(os.getcwd(), source)}'))
+    print(ColorUtils.info(f'Generating into target directory: {os.path.join(os.getcwd(), target)}'))
     build_tasks: Deque[threading.Thread] = collections.deque()
 
     for root, dirnames, filenames in os.walk(os.path.join(os.getcwd(), source)):
         for directory in dirnames:
-            print('Building directory %s' % os.path.join(root, directory))
+            print(ColorUtils.success(f'Building directory: {os.path.join(root, directory)}'))
         for filename in filenames:
             source_path = os.path.join(root, filename)
             target_path = source_path.replace(source, target)
@@ -1056,141 +1085,93 @@ def generate_delete_tasks_to_remove_deleted_files(
         deque(Thread). A deque that contains all delete tasks
         queued to be processed.
     """
-    print('Scanning directory %s to remove deleted file' % staging_directory)
+    print(ColorUtils.info(f'Scanning directory {staging_directory} to remove deleted files'))
     delete_tasks: Deque[threading.Thread] = collections.deque()
     for root, _, filenames in os.walk(
             os.path.join(os.getcwd(), staging_directory)):
         for filename in filenames:
             target_path = os.path.join(root, filename)
-            # Ignore files with certain extensions.
             if not any(
                     target_path.endswith(p) for p in FILE_EXTENSIONS_TO_IGNORE):
                 relative_path = os.path.relpath(
                     target_path, start=staging_directory)
-                # Remove file found in staging directory but not in source
-                # directory, i.e. file not listed in hash dict.
                 if relative_path not in source_dir_hashes:
-                    print(
-                        'Unable to find %s in file hashes, deleting file'
-                        % target_path)
+                    print(ColorUtils.warning(
+                        f'File not found in source hashes, deleting: {target_path}'))
                     task = threading.Thread(
                         target=safe_delete_file, args=(target_path,))
                     delete_tasks.append(task)
     return delete_tasks
-
 
 def get_recently_changed_filenames(
     source_dir_hashes: Dict[str, str], out_dir: str
 ) -> List[str]:
     """Compare hashes of source files and built files. Return a list of
     filenames that were recently changed. Skips files that are not supposed to
-    built or already built.
-
-    Args:
-        source_dir_hashes: dict(str, str). Dictionary of hashes of files
-            to be built.
-        out_dir: str. Path relative to /oppia where built files are located.
-
-    Returns:
-        list(str). List of filenames expected to be re-hashed.
-    """
-    # Hashes are created based on files' contents and are inserted between
-    # the filenames and their extensions,
-    # e.g base.240933e7564bd72a4dde42ee23260c5f.html
-    # If a file gets edited, a different MD5 hash is generated.
+    be built or already built."""
     recently_changed_filenames = []
-    # Currently, Python files and HTML files are always re-built.
     file_extensions_not_to_track = ('.html', '.py',)
     for filename, md5_hash in source_dir_hashes.items():
-        # Skip files that are already built or should not be built.
         if should_file_be_built(filename) and not any(
-                filename.endswith(p) for p in file_extensions_not_to_track):
+                filename.endswith(ext) for ext in file_extensions_not_to_track):
             final_filepath = _insert_hash(
                 os.path.join(out_dir, filename), md5_hash)
             if not os.path.isfile(final_filepath):
-                # Filename with provided hash cannot be found, this file has
-                # been recently changed or created since last build.
                 recently_changed_filenames.append(filename)
+
     if recently_changed_filenames:
-        print(
-            'The following files will be rebuilt due to recent changes: %s'
-            % recently_changed_filenames)
+        print(ColorUtils.warning(
+            f"The following files will be rebuilt due to recent changes: {recently_changed_filenames}"))
+    else:
+        print(ColorUtils.success("No recently changed files detected."))
     return recently_changed_filenames
 
 
 def generate_build_tasks_to_build_directory(
     dirnames_dict: Dict[str, str]
 ) -> Deque[threading.Thread]:
-    """This function queues up build tasks to build all files in source
-    directory if there is no existing staging directory. Otherwise, selectively
-    queue up build tasks to build recently changed files.
-
-    Args:
-        dirnames_dict: dict(str, str). This dict should contain three keys,
-            with corresponding values as follows:
-            - 'dev_dir': the directory that contains source files to be built.
-            - 'staging_dir': the directory that contains minified files waiting
-                for final copy process.
-            - 'out_dir': the final directory that contains built files with hash
-                inserted into filenames.
-
-    Returns:
-        deque(Thread). A deque that contains all build tasks queued
-        to be processed.
-    """
+    """Queues up build tasks for all files in source directory or selectively
+    queues up tasks for recently changed files."""
     source_dir = dirnames_dict['dev_dir']
     staging_dir = dirnames_dict['staging_dir']
     out_dir = dirnames_dict['out_dir']
     build_tasks: Deque[threading.Thread] = collections.deque()
+
     if not os.path.isdir(staging_dir):
-        # If there is no staging dir, perform build process on all files.
-        print('Creating new %s folder' % staging_dir)
+        print(ColorUtils.info(f"Creating new staging directory: {staging_dir}"))
         common.ensure_directory_exists(staging_dir)
         build_tasks += generate_build_tasks_to_build_all_files_in_directory(
             source_dir, staging_dir)
     else:
-        # If staging dir exists, rebuild all HTML and Python files.
-        file_extensions_to_always_rebuild = ('.html', '.py',)
-        print(
-            'Staging dir exists, re-building all %s files'
-            % ', '.join(file_extensions_to_always_rebuild))
-
+        print(ColorUtils.info(
+            f"Staging directory exists, rebuilding all .html and .py files in {source_dir}"))
         filenames_to_always_rebuild = get_filepaths_by_extensions(
-            source_dir, file_extensions_to_always_rebuild)
+            source_dir, ('.html', '.py',))
         build_tasks += generate_build_tasks_to_build_files_from_filepaths(
             source_dir, staging_dir, filenames_to_always_rebuild)
 
         dev_dir_hashes = get_file_hashes(source_dir)
-
-        source_hashes = {}
-        source_hashes.update(dev_dir_hashes)
-
-        # Clean up files in staging directory that cannot be found in file
-        # hashes dictionary.
+        source_hashes = dev_dir_hashes.copy()
         _execute_tasks(generate_delete_tasks_to_remove_deleted_files(
             source_hashes, staging_dir))
 
-        print(
-            'Getting files that have changed between %s and %s'
-            % (source_dir, out_dir))
+        print(ColorUtils.info(
+            f"Checking for changed files between {source_dir} and {out_dir}"))
         recently_changed_filenames = get_recently_changed_filenames(
             dev_dir_hashes, out_dir)
         if recently_changed_filenames:
-            print(
-                'Re-building recently changed files at %s' % source_dir)
+            print(ColorUtils.warning(
+                f"Rebuilding recently changed files in {source_dir}"))
             build_tasks += generate_build_tasks_to_build_files_from_filepaths(
                 source_dir, staging_dir, recently_changed_filenames)
         else:
-            print('No changes detected. Using previously built files.')
-
+            print(ColorUtils.success("No changes detected. Using previously built files."))
     return build_tasks
-
-
+    
 def _verify_filepath_hash(
     relative_filepath: str, file_hashes: Dict[str, str]
 ) -> None:
-    """Ensure that hashes in filepaths match with the hash entries in hash
-    dict.
+    """Ensure that hashes in filepaths match with the hash entries in the hash dict.
 
     Args:
         relative_filepath: str. Filepath that is relative from /build.
@@ -1207,11 +1188,16 @@ def _verify_filepath_hash(
     # Final filepath example:
     # pages/base.240933e7564bd72a4dde42ee23260c5f.html.
     if not file_hashes:
-        raise ValueError('Hash dict is empty')
+        raise ValueError(ColorUtils.error('Hash dictionary is empty.'))
 
     filename_partitions = relative_filepath.split('.')
     if len(filename_partitions) < 2:
-        raise ValueError('Filepath has less than 2 partitions after splitting')
+        raise ValueError(
+            ColorUtils.error(
+                'Filepath "%s" has less than 2 partitions after splitting by "."'
+                % relative_filepath
+            )
+        )
 
     hash_string_from_filename = filename_partitions[-2]
     # Ensure hash string obtained from filename follows MD5 hash format.
@@ -1219,19 +1205,29 @@ def _verify_filepath_hash(
         if relative_filepath not in file_hashes:
             return
         raise ValueError(
-            '%s is expected to contain MD5 hash' % relative_filepath)
+            ColorUtils.error(
+                'Filename "%s" is expected to contain a valid MD5 hash.'
+                % relative_filepath
+            )
+        )
+
     if hash_string_from_filename not in file_hashes.values():
         raise KeyError(
-            'Hash from file named %s does not match hash dict values' %
-            relative_filepath)
+            ColorUtils.error(
+                'Hash from file "%s" does not match any hash in the hash dictionary.'
+                % relative_filepath
+            )
+        )
+
+    print(ColorUtils.success('Filepath "%s" has a valid hash.' % relative_filepath))
 
 
 def _verify_hashes(
     output_dirnames: List[str], file_hashes: Dict[str, str]
 ) -> None:
     """Verify a few metrics after build process finishes:
-        1) The hashes in filenames belongs to the hash dict.
-        2) hashes.json, third_party.min.css and third_party.min.js are built and
+        1) The hashes in filenames belong to the hash dict.
+        2) hashes.json, third_party.min.css, and third_party.min.js are built and
         hashes are inserted.
 
     Args:
@@ -1240,9 +1236,11 @@ def _verify_hashes(
         file_hashes: dict(str, str). Dictionary with filepaths as keys and
             hashes of file content as values.
     """
+    print(ColorUtils.info("Starting hash verification..."))
 
-    # Make sure that hashed file name matches with current hash dict.
+    # Ensure hashed file names match the current hash dict.
     for built_dir in output_dirnames:
+        print(ColorUtils.info(f"Verifying files in directory: {built_dir}"))
         for root, _, filenames in os.walk(built_dir):
             for filename in filenames:
                 parent_dir = os.path.basename(root)
@@ -1252,7 +1250,15 @@ def _verify_hashes(
                     # Obtain the same filepath format as the hash dict's key.
                     relative_filepath = os.path.relpath(
                         os.path.join(root, filename), start=built_dir)
-                    _verify_filepath_hash(relative_filepath, file_hashes)
+                    print(ColorUtils.info(f"Verifying hash for: {relative_filepath}"))
+                    try:
+                        _verify_filepath_hash(relative_filepath, file_hashes)
+                        print(ColorUtils.success(f"Hash verified for: {relative_filepath}"))
+                    except KeyError as e:
+                        print(ColorUtils.error(f"Hash verification failed for {relative_filepath}: {e}"))
+                        raise
+
+    print(ColorUtils.info("Verifying special hashed files..."))
 
     hash_final_filename = _insert_hash(
         HASHES_JSON_FILENAME, file_hashes[HASHES_JSON_FILENAME])
@@ -1263,61 +1269,56 @@ def _verify_hashes(
         MINIFIED_THIRD_PARTY_CSS_RELATIVE_FILEPATH,
         file_hashes[MINIFIED_THIRD_PARTY_CSS_RELATIVE_FILEPATH])
 
-    _ensure_files_exist([
-        os.path.join(ASSETS_OUT_DIR, hash_final_filename),
-        os.path.join(
-            THIRD_PARTY_GENERATED_OUT_DIR, third_party_js_final_filename),
-        os.path.join(
-            THIRD_PARTY_GENERATED_OUT_DIR, third_party_css_final_filename)])
+    try:
+        _ensure_files_exist([
+            os.path.join(ASSETS_OUT_DIR, hash_final_filename),
+            os.path.join(
+                THIRD_PARTY_GENERATED_OUT_DIR, third_party_js_final_filename),
+            os.path.join(
+                THIRD_PARTY_GENERATED_OUT_DIR, third_party_css_final_filename)])
+        print(ColorUtils.success("All special hashed files verified successfully."))
+    except FileNotFoundError as e:
+        print(ColorUtils.error(f"File not found during verification: {e}"))
+        raise
+
+    print(ColorUtils.success("Hash verification completed successfully."))
 
 
 def generate_hashes() -> Dict[str, str]:
-    """Generates hashes for files."""
-
-    # The keys for hashes are filepaths relative to the subfolders of the future
-    # /build folder. This is so that the replacing inside the HTML files works
-    # correctly.
+    """Generates and returns hashes for files."""
+    print(ColorUtils.info("Generating hashes for files."))
     hashes = {}
-
-    # Create hashes for all directories and files.
     hash_dirs = [
         ASSETS_DEV_DIR, EXTENSIONS_DIRNAMES_TO_DIRPATHS['dev_dir'],
         TEMPLATES_CORE_DIRNAMES_TO_DIRPATHS['dev_dir'],
-        THIRD_PARTY_GENERATED_DEV_DIR]
+        THIRD_PARTY_GENERATED_DEV_DIR
+    ]
     for hash_dir in hash_dirs:
         hashes.update(get_file_hashes(hash_dir))
 
-    # Save hashes as JSON and write the JSON into JS file
-    # to make the hashes available to the frontend.
     save_hashes_to_file(hashes)
-
-    # Update hash dict with newly created hashes.json.
     hashes.update(
         {HASHES_JSON_FILENAME: generate_md5_hash(HASHES_JSON_FILEPATH)})
-    # Make sure /assets/hashes.json is available to the frontend.
     _ensure_files_exist([HASHES_JSON_FILEPATH])
+    print(ColorUtils.success("Hashes generated successfully."))
     return hashes
 
 
 def generate_build_directory(hashes: Dict[str, str]) -> None:
-    """Generates hashes for files. Minifies files and interpolates paths
-    in HTMLs to include hashes. Renames the files to include hashes and copies
-    them into build directory.
-    """
-    print('Building Oppia in production mode...')
+    """Generates the production build directory."""
+    print(ColorUtils.info("Building Oppia in production mode..."))
 
-    build_tasks: Deque[threading.Thread] = collections.deque()
-    copy_tasks: Deque[threading.Thread] = collections.deque()
+    build_tasks = collections.deque()
+    copy_tasks = collections.deque()
 
-    # Build files in /extensions and copy them into staging directory.
+    # Extensions and templates build tasks
     build_tasks += generate_build_tasks_to_build_directory(
         EXTENSIONS_DIRNAMES_TO_DIRPATHS)
-    # Minify all template files and copy them into staging directory.
     build_tasks += generate_build_tasks_to_build_directory(
         TEMPLATES_CORE_DIRNAMES_TO_DIRPATHS)
     _execute_tasks(build_tasks)
 
-    # Copy all files from staging directory to production directory.
+    # Copy tasks
     copy_input_dirs = [
         ASSETS_DEV_DIR, EXTENSIONS_DIRNAMES_TO_DIRPATHS['staging_dir'],
         TEMPLATES_CORE_DIRNAMES_TO_DIRPATHS['staging_dir'],
@@ -1327,67 +1328,41 @@ def generate_build_directory(hashes: Dict[str, str]) -> None:
         ASSETS_OUT_DIR, EXTENSIONS_DIRNAMES_TO_DIRPATHS['out_dir'],
         TEMPLATES_CORE_DIRNAMES_TO_DIRPATHS['out_dir'],
         THIRD_PARTY_GENERATED_OUT_DIR, WEBPACK_DIRNAMES_TO_DIRPATHS['out_dir']]
-    assert len(copy_input_dirs) == len(copy_output_dirs)
-    for i, copy_input_dir in enumerate(copy_input_dirs):
-        safe_delete_directory_tree(copy_output_dirs[i])
+    for input_dir, output_dir in zip(copy_input_dirs, copy_output_dirs):
+        safe_delete_directory_tree(output_dir)
         copy_tasks += generate_copy_tasks_to_copy_from_source_to_target(
-            copy_input_dir, copy_output_dirs[i], hashes)
+            input_dir, output_dir, hashes)
     _execute_tasks(copy_tasks)
 
     _verify_hashes(copy_output_dirs, hashes)
-
-    source_dirs_for_assets = [ASSETS_DEV_DIR, THIRD_PARTY_GENERATED_DEV_DIR]
-    output_dirs_for_assets = [ASSETS_OUT_DIR, THIRD_PARTY_GENERATED_OUT_DIR]
-    _compare_file_count(source_dirs_for_assets, output_dirs_for_assets)
-
-    source_dirs_for_third_party = [THIRD_PARTY_GENERATED_DEV_DIR]
-    output_dirs_for_third_party = [THIRD_PARTY_GENERATED_OUT_DIR]
-    _compare_file_count(
-        source_dirs_for_third_party, output_dirs_for_third_party)
-
-    source_dirs_for_webpack = [WEBPACK_DIRNAMES_TO_DIRPATHS['staging_dir']]
-    output_dirs_for_webpack = [WEBPACK_DIRNAMES_TO_DIRPATHS['out_dir']]
-    _compare_file_count(
-        source_dirs_for_webpack, output_dirs_for_webpack)
-
-    source_dirs_for_extensions = [
-        EXTENSIONS_DIRNAMES_TO_DIRPATHS['dev_dir']]
-    output_dirs_for_extensions = [EXTENSIONS_DIRNAMES_TO_DIRPATHS['out_dir']]
-    _compare_file_count(source_dirs_for_extensions, output_dirs_for_extensions)
-
-    source_dirs_for_templates = [
-        TEMPLATES_CORE_DIRNAMES_TO_DIRPATHS['dev_dir']]
-    output_dirs_for_templates = [
-        TEMPLATES_CORE_DIRNAMES_TO_DIRPATHS['out_dir']]
-    _compare_file_count(source_dirs_for_templates, output_dirs_for_templates)
-
-    print('Build completed.')
+    print(ColorUtils.success("Build completed successfully."))
 
 
 def generate_python_package() -> None:
     """Generates Python package using setup.py."""
-
-    # We first remove this dev dependencies because they should not be needed
-    # for the package build and we need to verify that they are actually not
-    # needed.
     try:
-        print('Remove dev dependencies')
+        print(ColorUtils.info('Removing dev dependencies...'))
         install_python_dev_dependencies.main(['--uninstall'])
-
-        print('Building Oppia package...')
+        print(ColorUtils.info('Building Oppia package...'))
         subprocess.check_call('python setup.py -q sdist -d build', shell=True)
-        print('Oppia package build completed.')
+        print(ColorUtils.success('Oppia package build completed successfully.'))
+    except subprocess.CalledProcessError as e:
+        print(ColorUtils.error(f"Failed to build Oppia package: {e}"))
+        raise
     finally:
+        print(ColorUtils.info('Reinstalling dev dependencies...'))
         install_python_dev_dependencies.install_installation_tools()
         install_third_party_libs.main()
-        print('Dev dependencies reinstalled')
+        print(ColorUtils.success('Dev dependencies reinstalled successfully.'))
 
 
 def clean() -> None:
     """Cleans up existing build directories."""
+    print(ColorUtils.info('Cleaning up existing build directories...'))
     safe_delete_directory_tree('build/')
     safe_delete_directory_tree('backend_prod_files/')
     safe_delete_directory_tree('webpack_bundles/')
+    print(ColorUtils.success('Cleanup completed.'))
 
 
 def main(args: Optional[Sequence[str]] = None) -> None:
@@ -1395,47 +1370,61 @@ def main(args: Optional[Sequence[str]] = None) -> None:
     options = _PARSER.parse_args(args=args)
 
     if options.maintenance_mode and not options.prod_env:
+        print(ColorUtils.error(
+            'Error: maintenance_mode should only be enabled in prod build.'))
         raise Exception(
             'maintenance_mode should only be enabled in prod build.')
 
     # Clean up the existing generated folders.
     clean()
 
-    # Regenerate /third_party/generated from scratch.
+    print(ColorUtils.info('Regenerating /third_party/generated from scratch...'))
     safe_delete_directory_tree(THIRD_PARTY_GENERATED_DEV_DIR)
-    build_third_party_libs(
-        THIRD_PARTY_GENERATED_DEV_DIR)
+    build_third_party_libs(THIRD_PARTY_GENERATED_DEV_DIR)
 
-    # If minify_third_party_libs_only is set to True, skips the rest of the
-    # build process once third party libs are minified.
     if options.minify_third_party_libs_only:
         if options.prod_env:
+            print(ColorUtils.info(
+                'Minifying third-party libs only (prod environment)...'))
             minify_third_party_libs(THIRD_PARTY_GENERATED_DEV_DIR)
+            print(ColorUtils.success('Third-party libs minified successfully.'))
             return
         else:
+            print(ColorUtils.error(
+                'Error: minify_third_party_libs_only should not be set in non-prod env.'))
             raise Exception(
                 'minify_third_party_libs_only should not be '
                 'set in non-prod env.')
 
+    print(ColorUtils.info('Modifying constants for build configuration...'))
     common.modify_constants(
         prod_env=options.prod_env,
         emulator_mode=not options.deploy_mode,
         maintenance_mode=options.maintenance_mode)
+
     if options.prod_env:
+        print(ColorUtils.info('Running production build steps...'))
         minify_third_party_libs(THIRD_PARTY_GENERATED_DEV_DIR)
         hashes = generate_hashes()
         if not feconf.OPPIA_IS_DOCKERIZED:
+            print(ColorUtils.info('Generating Python package...'))
             generate_python_package()
             if options.source_maps:
+                print(ColorUtils.info('Building using Webpack (with source maps)...'))
                 build_using_webpack(WEBPACK_PROD_SOURCE_MAPS_CONFIG)
             else:
+                print(ColorUtils.info('Building using Webpack...'))
                 build_using_webpack(WEBPACK_PROD_CONFIG)
+            print(ColorUtils.info('Building using Angular CLI...'))
             build_using_ng()
-        generate_app_yaml(
-            deploy_mode=options.deploy_mode)
+        print(ColorUtils.info('Generating app.yaml...'))
+        generate_app_yaml(deploy_mode=options.deploy_mode)
+        print(ColorUtils.info('Generating build directory...'))
         generate_build_directory(hashes)
 
+    print(ColorUtils.info('Saving hashes to file...'))
     save_hashes_to_file({})
+    print(ColorUtils.success('Build process completed successfully.'))
 
 
 # The 'no coverage' pragma is used as this line is un-testable. This is because

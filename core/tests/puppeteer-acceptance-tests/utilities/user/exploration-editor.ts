@@ -226,7 +226,7 @@ export class ExplorationEditor extends BaseUser {
    */
   async navigateToCreatorDashboardPage(): Promise<void> {
     await this.goto(creatorDashboardPage);
-    showMessage('Creator dashboard page is opened successfully.');
+    showMessage("success",'Creator dashboard page is opened successfully.');
   }
 
   /**
@@ -249,7 +249,7 @@ export class ExplorationEditor extends BaseUser {
   ): Promise<void> {
     await this.updateCardContent(content);
     await this.addInteraction(interaction);
-    showMessage('A simple exploration is created.');
+    showMessage("success",'A simple exploration is created.');
   }
 
   /**
@@ -280,7 +280,7 @@ export class ExplorationEditor extends BaseUser {
     } else {
       await this.clickOn(settingsTab);
     }
-    showMessage('Settings tab is opened successfully.');
+    showMessage("success",'Settings tab is opened successfully.');
   }
 
   /**
@@ -404,9 +404,9 @@ export class ExplorationEditor extends BaseUser {
       await this.page.waitForSelector(dismissWelcomeModalSelector, {
         hidden: true,
       });
-      showMessage('Tutorial pop-up closed successfully.');
+      showMessage("success",'Tutorial pop-up closed successfully.');
     } catch (error) {
-      showMessage(`welcome modal not found: ${error.message}`);
+      showMessage("error",`welcome modal not found: ${error.message}`);
     }
   }
 
@@ -421,7 +421,7 @@ export class ExplorationEditor extends BaseUser {
     await this.page.waitForSelector(dismissTranslationWelcomeModalSelector, {
       hidden: true,
     });
-    showMessage('Translation tutorial pop-up closed successfully.');
+    showMessage("success",'Translation tutorial pop-up closed successfully.');
   }
 
   /**
@@ -437,7 +437,7 @@ export class ExplorationEditor extends BaseUser {
     await this.type(stateContentInputField, `${content}`);
     await this.clickOn(saveContentButton);
     await this.page.waitForSelector(stateContentInputField, {hidden: true});
-    showMessage('Card content is updated successfully.');
+    showMessage("success",'Card content is updated successfully.');
   }
 
   /**
@@ -452,7 +452,7 @@ export class ExplorationEditor extends BaseUser {
     await this.page.waitForSelector(addInteractionModalSelector, {
       hidden: true,
     });
-    showMessage(`${interactionToAdd} interaction has been added successfully.`);
+    showMessage("success",`${interactionToAdd} interaction has been added successfully.`);
   }
 
   /**
@@ -482,7 +482,7 @@ export class ExplorationEditor extends BaseUser {
     await this.page.waitForSelector(addInteractionModalSelector, {
       hidden: true,
     });
-    showMessage('Multiple Choice interaction has been added successfully.');
+    showMessage("success",'Multiple Choice interaction has been added successfully.');
   }
 
   /**
@@ -498,7 +498,7 @@ export class ExplorationEditor extends BaseUser {
     await this.page.waitForSelector(addInteractionModalSelector, {
       hidden: true,
     });
-    showMessage('Text input interaction has been added successfully.');
+    showMessage("success",'Text input interaction has been added successfully.');
   }
 
   /**
@@ -524,7 +524,7 @@ export class ExplorationEditor extends BaseUser {
     await this.page.waitForSelector(addInteractionModalSelector, {
       hidden: true,
     });
-    showMessage(`${interactionToAdd} interaction has been added successfully.`);
+    showMessage("success",`${interactionToAdd} interaction has been added successfully.`);
   }
 
   /**
@@ -588,7 +588,7 @@ export class ExplorationEditor extends BaseUser {
     await this.clickOn(addNewResponseButton);
     await this.clickOn(correctAnswerInTheGroupSelector);
 
-    showMessage('Image interaction has been added successfully.');
+    showMessage("success",'Image interaction has been added successfully.');
   }
 
   /**
@@ -599,7 +599,7 @@ export class ExplorationEditor extends BaseUser {
     await this.type(addTitleBar, title);
     await this.page.keyboard.press('Tab');
 
-    showMessage(`Title has been updated to ${title}`);
+    showMessage("success",`Title has been updated to ${title}`);
   }
 
   /**
@@ -614,7 +614,7 @@ export class ExplorationEditor extends BaseUser {
     );
 
     if (expectedTitle === currentTitle) {
-      showMessage('Title matches the expected title.');
+      showMessage("success",'Title matches the expected title.');
     } else {
       throw new Error('Failed to update changes.');
     }
@@ -655,7 +655,7 @@ export class ExplorationEditor extends BaseUser {
       const goal = await this.page.evaluate(input => input.value, goalInput);
 
       if (goal === expectedGoal) {
-        showMessage('The goal has been set for the exploration.');
+        showMessage("success",'The goal has been set for the exploration.');
       } else {
         throw new Error('The goal does not match the expected goal.');
       }
@@ -685,7 +685,7 @@ export class ExplorationEditor extends BaseUser {
     });
     if (selectedCategory === expectedCategory) {
       showMessage(
-        `The category ${selectedCategory} is same as expectedCategory.`
+        "success",`The category ${selectedCategory} is same as expectedCategory.`
       );
     } else {
       throw new Error('Category is not correct.');
@@ -728,7 +728,7 @@ export class ExplorationEditor extends BaseUser {
 
     if (selectedLanguage.includes(expectedLanguage)) {
       showMessage(
-        `The language ${selectedLanguage} contains the expected language.`
+        "success",`The language ${selectedLanguage} contains the expected language.`
       );
     } else {
       throw new Error('Language is not correct.');
@@ -766,7 +766,7 @@ export class ExplorationEditor extends BaseUser {
       }
     }
 
-    showMessage('All expected tags were added successfully.');
+    showMessage("success",'All expected tags were added successfully.');
   }
 
   /**
@@ -786,7 +786,7 @@ export class ExplorationEditor extends BaseUser {
     const previewSummary = await this.page.$(dismissPreviewButton);
 
     if (previewSummary) {
-      showMessage('Preview summary is visible.');
+      showMessage("success",'Preview summary is visible.');
     } else {
       throw new Error('Preview summary is not visible.');
     }
@@ -811,7 +811,7 @@ export class ExplorationEditor extends BaseUser {
       autoTtsSwitch
     );
     if (autoTtsSwitchIsOn) {
-      showMessage('Automatic Text-to-Speech is enabled.');
+      showMessage("success",'Automatic Text-to-Speech is enabled.');
     } else {
       throw error('Automatic Text-to-Speech is disabled.');
     }
@@ -827,7 +827,7 @@ export class ExplorationEditor extends BaseUser {
     await this.clickOn(addRoleDropdown);
     await this.clickOn(collaboratorRoleOption);
     await this.clickOn(saveRoleButton);
-    showMessage(`${username} has been added as collaboratorRole.`);
+    showMessage("success",`${username} has been added as collaboratorRole.`);
   }
 
   /**
@@ -843,7 +843,7 @@ export class ExplorationEditor extends BaseUser {
     await this.clickOn(addRoleDropdown);
     await this.clickOn(playtesterRoleOption);
     await this.clickOn(saveRoleButton);
-    showMessage(`${username} has been added as playtester.`);
+    showMessage("success",`${username} has been added as playtester.`);
   }
 
   /**
@@ -858,7 +858,7 @@ export class ExplorationEditor extends BaseUser {
     const publishButton = await this.page.$(publishButtonSelector);
     if (!publishButton) {
       showMessage(
-        'Exploration is set to Public and is accessible to Oppia users.'
+        "success",'Exploration is set to Public and is accessible to Oppia users.'
       );
     } else {
       throw new Error(
@@ -890,7 +890,7 @@ export class ExplorationEditor extends BaseUser {
     );
 
     if (suggestionSwitchIsActive) {
-      showMessage('suggestion notifications via email are enabled.');
+      showMessage("success",'suggestion notifications via email are enabled.');
     } else {
       throw new Error('suggestion notifications via email are disabled.');
     }
@@ -924,7 +924,7 @@ export class ExplorationEditor extends BaseUser {
     await this.page.waitForSelector(toastMessage, {
       hidden: true,
     });
-    showMessage('Exploration is saved successfully.');
+    showMessage("success",'Exploration is saved successfully.');
     await this.waitForNetworkIdle();
   }
 
@@ -1388,7 +1388,7 @@ export class ExplorationEditor extends BaseUser {
     }
 
     showMessage(
-      `The misconception is ${isPresent ? '' : 'not'} present as expected.`
+      "success",`The misconception is ${isPresent ? '' : 'not'} present as expected.`
     );
   }
 
@@ -1482,7 +1482,7 @@ export class ExplorationEditor extends BaseUser {
     }
 
     showMessage(
-      `The misconception is ${isApplicable ? '' : 'not'} applicable as expected.`
+      "success",`The misconception is ${isApplicable ? '' : 'not'} applicable as expected.`
     );
   }
 
@@ -1578,7 +1578,7 @@ export class ExplorationEditor extends BaseUser {
         `Preview is not on the ${cardName} card or is not loading correctly.`
       );
     }
-    showMessage(`Preview is on the ${cardName} card and is loading correctly.`);
+    showMessage("success",`Preview is on the ${cardName} card and is loading correctly.`);
   }
 
   /**
@@ -1653,7 +1653,7 @@ export class ExplorationEditor extends BaseUser {
     if (!toastMessage || !toastMessage.includes(message)) {
       throw new Error('Exploration did not complete successfully');
     }
-    showMessage('Exploration has completed successfully');
+    showMessage("success",'Exploration has completed successfully');
     await this.page.waitForSelector(explorationCompletionToastMessage, {
       hidden: true,
     });
@@ -1710,7 +1710,7 @@ export class ExplorationEditor extends BaseUser {
       currentSubscriberCount &&
       parseInt(currentSubscriberCount) === subscriberCount
     ) {
-      showMessage(`Number of subscribers is equal to ${subscriberCount}.`);
+      showMessage("success",`Number of subscribers is equal to ${subscriberCount}.`);
     } else {
       throw new Error(
         `Number of subscribers is not equal to ${subscriberCount}.`
@@ -1753,7 +1753,7 @@ export class ExplorationEditor extends BaseUser {
     );
 
     if (truncatedUsername === subscriberUsername) {
-      showMessage(`User ${username} is a subscriber.`);
+      showMessage("success",`User ${username} is a subscriber.`);
     } else {
       throw new Error(`User ${username} is not a subscriber.`);
     }
@@ -1799,7 +1799,7 @@ export class ExplorationEditor extends BaseUser {
         'document.querySelector(".oppia-feedback-popup-container") !== null',
         {timeout: 5000}
       );
-      showMessage('Feedback submitted successfully');
+      showMessage("success",'Feedback submitted successfully');
     } catch (error) {
       throw new Error('Feedback was not successfully submitted');
     }
@@ -1825,7 +1825,7 @@ export class ExplorationEditor extends BaseUser {
     );
     if (!activeContentType?.includes(contentType)) {
       showMessage(
-        `Switching content type from ${activeContentType} to ${contentType}`
+        "success",`Switching content type from ${activeContentType} to ${contentType}`
       );
       await this.clickOn(contentType);
     }
@@ -1888,7 +1888,7 @@ export class ExplorationEditor extends BaseUser {
     }, languageCode);
 
     if (translationElementText === expectedTranslation) {
-      showMessage('The expected translation exists in the modal.');
+      showMessage("success",'The expected translation exists in the modal.');
     } else {
       throw new Error(
         `The expected translation does not exist in the modal. Found "${translationElementText}", expected "${expectedTranslation}"`
@@ -1932,7 +1932,7 @@ export class ExplorationEditor extends BaseUser {
 
     await this.clickOn(modalSaveButton);
     await this.clickOn(modifyTranslationsModalDoneButton);
-    showMessage('Successfully updated translation from modal.');
+    showMessage("success",'Successfully updated translation from modal.');
   }
 
   /**
@@ -1956,7 +1956,7 @@ export class ExplorationEditor extends BaseUser {
 
     if (!activeContentType?.includes(contentType)) {
       showMessage(
-        `Switching content type from ${activeContentType} to ${contentType}`
+        "success",`Switching content type from ${activeContentType} to ${contentType}`
       );
       await this.clickOn(contentType);
     }
@@ -1991,7 +1991,7 @@ export class ExplorationEditor extends BaseUser {
 
     if (translation === expectedTranslation) {
       showMessage(
-        'The newly updated translation exists in the translations tab.'
+        "success",'The newly updated translation exists in the translations tab.'
       );
     } else {
       throw new Error(
@@ -2018,7 +2018,7 @@ export class ExplorationEditor extends BaseUser {
     );
     if (!activeContentType?.includes(contentType)) {
       showMessage(
-        `Switching content type from ${activeContentType} to ${contentType}`
+        "success",`Switching content type from ${activeContentType} to ${contentType}`
       );
       await this.clickOn(contentType);
     }
@@ -2065,7 +2065,7 @@ export class ExplorationEditor extends BaseUser {
     const feedbackSubjects = await this.page.$$(feedbackSubjectSelector);
 
     if (feedbackSubjects.length === expectedNumber) {
-      showMessage('Number of suggestions matches the expected number.');
+      showMessage("success",'Number of suggestions matches the expected number.');
     } else {
       throw new Error(
         `Number of suggestions does not match the expected number. Expected: ${expectedNumber}, Found: ${feedbackSubjects.length}`

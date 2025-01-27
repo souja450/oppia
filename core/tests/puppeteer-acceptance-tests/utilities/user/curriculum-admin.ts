@@ -540,7 +540,7 @@ export class CurriculumAdmin extends BaseUser {
     await this.page.waitForSelector(photoUploadModal, {hidden: true});
     await this.clickOn(createSubtopicButton);
     await this.saveTopicDraft(topicName);
-    showMessage(`Subtopic ${title} is created.`);
+    showMessage("success",`Subtopic ${title} is created.`);
   }
 
   /**
@@ -778,7 +778,7 @@ export class CurriculumAdmin extends BaseUser {
       expectedSubtopicCount.toString()
     );
     expect(topicDetails.skillsCount).toEqual(expectedSkillsCount.toString());
-    showMessage('Topic has been published successfully!');
+    showMessage("success",'Topic has been published successfully!');
   }
 
   /**
@@ -793,7 +793,7 @@ export class CurriculumAdmin extends BaseUser {
     }
     const editorUrl = `${baseURL}/create/${explorationId}`;
     await this.page.goto(editorUrl);
-    showMessage('Navigation to exploration editor is successful.');
+    showMessage("success",'Navigation to exploration editor is successful.');
   }
 
   /**
@@ -808,7 +808,7 @@ export class CurriculumAdmin extends BaseUser {
     } else {
       await this.clickOn(explorationSettingsTab);
     }
-    showMessage('Navigation to settings tab is successful.');
+    showMessage("success",'Navigation to settings tab is successful.');
   }
 
   /**
@@ -834,9 +834,9 @@ export class CurriculumAdmin extends BaseUser {
       await this.page.waitForSelector(dismissWelcomeModalSelector, {
         hidden: true,
       });
-      showMessage('Tutorial pop-up closed successfully.');
+      showMessage("success",'Tutorial pop-up closed successfully.');
     } catch (error) {
-      showMessage(`welcome modal not found: ${error.message}`);
+      showMessage("error",`welcome modal not found: ${error.message}`);
     }
   }
 
@@ -939,7 +939,7 @@ export class CurriculumAdmin extends BaseUser {
     const url = new URL(this.page.url());
     const pathSegments = url.pathname.split('/');
     const storyId = pathSegments[pathSegments.length - 1];
-    showMessage(`Story ${storyTitle} is created.`);
+    showMessage("success",`Story ${storyTitle} is created.`);
     await this.waitForNetworkIdle();
 
     return storyId;
@@ -968,7 +968,7 @@ export class CurriculumAdmin extends BaseUser {
     await this.page.waitForSelector(photoUploadModal, {hidden: true});
     await this.clickOn(createChapterButton);
     await this.page.waitForSelector(modalDiv, {hidden: true});
-    showMessage(`Chapter ${chapterName} is created.`);
+    showMessage("success",`Chapter ${chapterName} is created.`);
   }
 
   /**
@@ -1101,7 +1101,7 @@ export class CurriculumAdmin extends BaseUser {
         }
       }
     }
-    showMessage(`Topic "${topicName}" has been successfully deleted.`);
+    showMessage("success",`Topic "${topicName}" has been successfully deleted.`);
   }
 
   /**
@@ -1116,7 +1116,7 @@ export class CurriculumAdmin extends BaseUser {
       'No topics or skills have been created yet.'
     );
     if (isTextPresent) {
-      showMessage(`The skill "${topicName}" is not present on the Topics and Skills
+      showMessage("warning",`The skill "${topicName}" is not present on the Topics and Skills
       Dashboard as expected.`);
     }
 
@@ -1129,7 +1129,7 @@ export class CurriculumAdmin extends BaseUser {
       );
     } else {
       showMessage(
-        `The topic "${topicName}" is not present on the Topics and Skills
+        "warning",`The topic "${topicName}" is not present on the Topics and Skills
          Dashboard as expected.`
       );
     }
@@ -1204,7 +1204,7 @@ export class CurriculumAdmin extends BaseUser {
       }
     }
 
-    showMessage(`Skill "${skillName}" has been successfully deleted.`);
+    showMessage("success",`Skill "${skillName}" has been successfully deleted.`);
   }
 
   /**
@@ -1223,7 +1223,7 @@ export class CurriculumAdmin extends BaseUser {
     );
 
     if (isTextPresent) {
-      showMessage(`The skill "${skillName}" is not present on the Topics and Skills
+      showMessage("warning",`The skill "${skillName}" is not present on the Topics and Skills
       Dashboard as expected.`);
       return;
     }
@@ -1238,7 +1238,7 @@ export class CurriculumAdmin extends BaseUser {
       );
     }
     showMessage(
-      `The skill "${skillName}" is not present on the Topics and Skills
+      "warning",`The skill "${skillName}" is not present on the Topics and Skills
       Dashboard as expected.`
     );
   }
@@ -1293,7 +1293,7 @@ export class CurriculumAdmin extends BaseUser {
       }
 
       showMessage(
-        `All questions have been successfully removed from the skill "${skillName}".`
+        "success",`All questions have been successfully removed from the skill "${skillName}".`
       );
     } catch (error) {
       console.error(
@@ -1362,7 +1362,7 @@ export class CurriculumAdmin extends BaseUser {
     await this.page.type(newClassroomUrlFragmentInputField, urlFragment);
     await this.clickOn(saveNewClassroomButton);
     await this.page.waitForSelector(createNewClassroomModal, {visible: false});
-    showMessage(`Created ${classroomName} classroom.`);
+    showMessage("success",`Created ${classroomName} classroom.`);
   }
 
   /**
@@ -1396,7 +1396,7 @@ export class CurriculumAdmin extends BaseUser {
 
     await this.clickOn(saveClassroomButton);
 
-    showMessage(`Updated ${classroomName} classroom.`);
+    showMessage("success",`Updated ${classroomName} classroom.`);
   }
 
   /**
@@ -1417,7 +1417,7 @@ export class CurriculumAdmin extends BaseUser {
     await this.page.waitForSelector(openTopicDropdownButton);
     await this.clickOn(saveClassroomButton);
 
-    showMessage(`Added ${topicName} topic to the ${classroomName} classroom.`);
+    showMessage("success",`Added ${topicName} topic to the ${classroomName} classroom.`);
   }
 
   /**
@@ -1428,7 +1428,7 @@ export class CurriculumAdmin extends BaseUser {
     const classroomTiles = await this.page.$$(classroomTileSelector);
 
     if (classroomTiles.length === classroomsCount) {
-      showMessage(`There are ${classroomsCount} classrooms present.`);
+      showMessage("success",`There are ${classroomsCount} classrooms present.`);
     } else {
       throw new Error(
         `Expected ${classroomTiles.length} classrooms found ${classroomsCount} classrooms.`
@@ -1444,7 +1444,7 @@ export class CurriculumAdmin extends BaseUser {
     await this.editClassroom(classroomName);
     await this.clickOn(publishClassroomButton);
     await this.clickOn(saveClassroomButton);
-    showMessage(`Published ${classroomName} classroom.`);
+    showMessage("success",`Published ${classroomName} classroom.`);
   }
 
   /**
@@ -1483,7 +1483,7 @@ export class CurriculumAdmin extends BaseUser {
         await this.clickOn(confirmDeleteClassroomButton);
         await this.page.waitForSelector(deleteClassroomModal, {visible: false});
 
-        showMessage(`Deleted ${classroomName} classroom.`);
+        showMessage("success",`Deleted ${classroomName} classroom.`);
         foundClassroom = true;
         break;
       }
@@ -1512,7 +1512,7 @@ export class CurriculumAdmin extends BaseUser {
 
     if (topicNodes.length === numberOfTopics) {
       showMessage(
-        `The ${classroomName} classroom has ${numberOfTopics} topics.`
+        "success",`The ${classroomName} classroom has ${numberOfTopics} topics.`
       );
     } else {
       throw new Error(

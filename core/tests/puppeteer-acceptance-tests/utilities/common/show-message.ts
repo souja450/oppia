@@ -12,12 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * @fileoverview Utility function for logging the progress of the tests.
- */
+import { execSync } from 'child_process';
 
-export let showMessage = function (message: string): void {
-  // We use console statements to log the progress or feedback of the tests.
-  // eslint-disable-next-line no-console
-  console.log('LOG: ' + message);
-};
+/**
+ * Utility function to log messages with colorized output.
+ */
+export function showMessage(
+  type: 'error' | 'warning' | 'success',
+  message: string
+): void {
+  try {
+    // Serialize the message to ensure proper escaping of quotes and special characters
+    const serializedMessage = JSON.stringify(message);
+
+    // Construct the Python command using single quotes to wrap the entire command
+    // and inject the serialized message directly
+    const command = `python -c 'from scripts.common import print_${type}_message; print_${type}_message(${serializedMessage})'`;
+
+    // Log the command for debugging purposes (optional)
+    console.log(`Executing command: ${command}`);
+
+    // Execute the command
+    execSync(command, { stdio: 'inherit' });
+  } catch (error) {
+    console.error('Failed to print message:', error);
+  }
+}
+
+
+
+

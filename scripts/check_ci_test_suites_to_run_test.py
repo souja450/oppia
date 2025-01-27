@@ -25,6 +25,13 @@ from core.tests import test_utils
 from scripts import check_ci_test_suites_to_run
 from scripts import generate_root_files_mapping
 from typing import List, Sequence
+from scripts.utils.color_utils import colorize_error_message
+
+class ColorUtilsTests(test_utils.GenericTestBase):
+    def test_colorize_error_message(self):
+        message = "This is an error message."
+        expected_message = f'\033[91m{message}\033[0m'
+        self.assertEqual(colorize_error_message(message), expected_message)
 
 
 LIGHTHOUSE_PAGES_CONFIG = {

@@ -1,0 +1,16 @@
+[1m[31mError generating root files mapping: /Users/soulaimenejaoua/Documents/Opensource/oppia/core/tests/test-dependencies/typescript-ast-utilities.js:83
+    throw new Error(`Failed to resolve module ${modulePath} at ${containingFile}.`);
+    ^
+
+Error: Failed to resolve module module at /Users/soulaimenejaoua/Documents/Opensource/oppia/functions/node_modules/@babel/core/lib/config/files/configuration.js.
+    at fallbackResolveModule (/Users/soulaimenejaoua/Documents/Opensource/oppia/core/tests/test-dependencies/typescript-ast-utilities.js:83:11)
+    at resolveModuleUsingWebpack (/Users/soulaimenejaoua/Documents/Opensource/oppia/core/tests/test-dependencies/typescript-ast-utilities.js:91:16)
+    at Object.resolveModule (/Users/soulaimenejaoua/Documents/Opensource/oppia/core/tests/test-dependencies/typescript-ast-utilities.js:108:16)
+    at Object.resolveModuleRelativeToRoot (/Users/soulaimenejaoua/Documents/Opensource/oppia/core/tests/test-dependencies/typescript-ast-utilities.js:124:36)
+    at /Users/soulaimenejaoua/Documents/Opensource/oppia/core/tests/test-dependencies/root-files-mapping-generator.js:109:43
+    at Array.map (<anonymous>)
+    at getCallExpressionModuleImportsFromSourceFile (/Users/soulaimenejaoua/Documents/Opensource/oppia/core/tests/test-dependencies/root-files-mapping-generator.js:98:44)
+    at getModuleImportsFromSourceFile (/Users/soulaimenejaoua/Documents/Opensource/oppia/core/tests/test-dependencies/root-files-mapping-generator.js:120:41)
+    at getDependenciesFromTypeScriptOrJavaScriptFile (/Users/soulaimenejaoua/Documents/Opensource/oppia/core/tests/test-dependencies/root-files-mapping-generator.js:336:26)
+    at /Users/soulaimenejaoua/Documents/Opensource/oppia/core/tests/test-dependencies/root-files-mapping-generator.js:364:34
+[0m
