@@ -122,6 +122,7 @@ export default {
       'https://drive.google.com/file/d/1gMixZ2c0j5XAGPx4qDBDvRgiFvF6PMkk/view',
     LessonCreatorLinkedInUrl:
       'https://www.linkedin.com/in/rita-santos-guimaraes-prof-matematica/',
+    ReadBlogLink: 'https://medium.com/oppia-org',
   },
   Dashboard: {
     MainDashboard: '.e2e-test-splash-page',
@@ -157,7 +158,7 @@ export default {
   data: {
     blogPostThumbnailImage: path.resolve(
       __dirname,
-      '../../data/blog-post-thumbnail.svg'
+      '../../data/blog-post-thumbnail.png'
     ),
     curriculumAdminThumbnailImage: path.resolve(
       __dirname,
