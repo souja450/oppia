@@ -60,6 +60,7 @@ const saveResponseButton = 'button.e2e-test-add-new-response';
 const defaultFeedbackTab = 'a.e2e-test-default-response-tab';
 const openOutcomeFeedBackEditor = 'div.e2e-test-open-outcome-feedback-editor';
 const saveOutcomeFeedbackButton = 'button.e2e-test-save-outcome-feedback';
+const openAnswerGroupFeedBackEditor = 'i.e2e-test-open-feedback-editor';
 const addHintButton = 'button.e2e-test-oppia-add-hint-button';
 const saveHintButton = 'button.e2e-test-save-hint';
 const addSolutionButton = 'button.e2e-test-oppia-add-solution-button';
@@ -69,6 +70,7 @@ const submitSolutionButton = 'button.e2e-test-submit-solution-button';
 const saveQuestionButton = 'button.e2e-test-save-question-button';
 
 const dismissWelcomeModalSelector = 'button.e2e-test-dismiss-welcome-modal';
+const dropdownToggleIcon = '.e2e-test-mobile-options-dropdown';
 
 const topicsTab = 'a.e2e-test-topics-tab';
 const desktopTopicSelector = 'a.e2e-test-topic-name';
@@ -330,6 +332,8 @@ export class CurriculumAdmin extends BaseUser {
     await this.clickOn(equalsRuleButtonText);
     await this.type(floatTextField, '3');
     await this.clickOn(answersInGroupAreCorrectToggle);
+    await this.clickOn(openAnswerGroupFeedBackEditor);
+    await this.type(richTextAreaField, 'Good job!');
     await this.clickOn(saveResponseButton);
     await this.page.waitForSelector(modalDiv, {hidden: true});
 
@@ -540,7 +544,7 @@ export class CurriculumAdmin extends BaseUser {
     await this.page.waitForSelector(photoUploadModal, {hidden: true});
     await this.clickOn(createSubtopicButton);
     await this.saveTopicDraft(topicName);
-    showMessage("success",`Subtopic ${title} is created.`);
+    showMessage(`Subtopic ${title} is created.`);
   }
 
   /**
@@ -778,7 +782,7 @@ export class CurriculumAdmin extends BaseUser {
       expectedSubtopicCount.toString()
     );
     expect(topicDetails.skillsCount).toEqual(expectedSkillsCount.toString());
-    showMessage("success",'Topic has been published successfully!');
+    showMessage('Topic has been published successfully!');
   }
 
   /**
@@ -793,7 +797,7 @@ export class CurriculumAdmin extends BaseUser {
     }
     const editorUrl = `${baseURL}/create/${explorationId}`;
     await this.page.goto(editorUrl);
-    showMessage("success",'Navigation to exploration editor is successful.');
+    showMessage('Navigation to exploration editor is successful.');
   }
 
   /**
@@ -808,7 +812,7 @@ export class CurriculumAdmin extends BaseUser {
     } else {
       await this.clickOn(explorationSettingsTab);
     }
-    showMessage("success",'Navigation to settings tab is successful.');
+    showMessage('Navigation to settings tab is successful.');
   }
 
   /**
@@ -834,9 +838,26 @@ export class CurriculumAdmin extends BaseUser {
       await this.page.waitForSelector(dismissWelcomeModalSelector, {
         hidden: true,
       });
-      showMessage("success",'Tutorial pop-up closed successfully.');
+      showMessage('Tutorial pop-up closed successfully.');
     } catch (error) {
-      showMessage("error",`welcome modal not found: ${error.message}`);
+      showMessage(`welcome modal not found: ${error.message}`);
+    }
+  }
+
+  /**
+   * Function to close editor navigation dropdown. Can be done by clicking
+   * on the dropdown toggle.
+   */
+  async closeEditorNavigationDropdownOnMobile(): Promise<void> {
+    try {
+      await this.page.waitForSelector(dropdownToggleIcon, {
+        visible: true,
+        timeout: 5000,
+      });
+      await this.clickOn(dropdownToggleIcon);
+      showMessage('Editor navigation closed successfully.');
+    } catch (error) {
+      showMessage(`Dropdown Toggle Icon not found: ${error.message}`);
     }
   }
 
@@ -939,7 +960,7 @@ export class CurriculumAdmin extends BaseUser {
     const url = new URL(this.page.url());
     const pathSegments = url.pathname.split('/');
     const storyId = pathSegments[pathSegments.length - 1];
-    showMessage("success",`Story ${storyTitle} is created.`);
+    showMessage(`Story ${storyTitle} is created.`);
     await this.waitForNetworkIdle();
 
     return storyId;
@@ -968,7 +989,7 @@ export class CurriculumAdmin extends BaseUser {
     await this.page.waitForSelector(photoUploadModal, {hidden: true});
     await this.clickOn(createChapterButton);
     await this.page.waitForSelector(modalDiv, {hidden: true});
-    showMessage("success",`Chapter ${chapterName} is created.`);
+    showMessage(`Chapter ${chapterName} is created.`);
   }
 
   /**
@@ -1101,7 +1122,7 @@ export class CurriculumAdmin extends BaseUser {
         }
       }
     }
-    showMessage("success",`Topic "${topicName}" has been successfully deleted.`);
+    showMessage(`Topic "${topicName}" has been successfully deleted.`);
   }
 
   /**
@@ -1116,7 +1137,7 @@ export class CurriculumAdmin extends BaseUser {
       'No topics or skills have been created yet.'
     );
     if (isTextPresent) {
-      showMessage("warning",`The skill "${topicName}" is not present on the Topics and Skills
+      showMessage(`The skill "${topicName}" is not present on the Topics and Skills
       Dashboard as expected.`);
     }
 
@@ -1129,7 +1150,7 @@ export class CurriculumAdmin extends BaseUser {
       );
     } else {
       showMessage(
-        "warning",`The topic "${topicName}" is not present on the Topics and Skills
+        `The topic "${topicName}" is not present on the Topics and Skills
          Dashboard as expected.`
       );
     }
@@ -1204,7 +1225,7 @@ export class CurriculumAdmin extends BaseUser {
       }
     }
 
-    showMessage("success",`Skill "${skillName}" has been successfully deleted.`);
+    showMessage(`Skill "${skillName}" has been successfully deleted.`);
   }
 
   /**
@@ -1223,7 +1244,7 @@ export class CurriculumAdmin extends BaseUser {
     );
 
     if (isTextPresent) {
-      showMessage("warning",`The skill "${skillName}" is not present on the Topics and Skills
+      showMessage(`The skill "${skillName}" is not present on the Topics and Skills
       Dashboard as expected.`);
       return;
     }
@@ -1238,7 +1259,7 @@ export class CurriculumAdmin extends BaseUser {
       );
     }
     showMessage(
-      "warning",`The skill "${skillName}" is not present on the Topics and Skills
+      `The skill "${skillName}" is not present on the Topics and Skills
       Dashboard as expected.`
     );
   }
@@ -1293,7 +1314,7 @@ export class CurriculumAdmin extends BaseUser {
       }
 
       showMessage(
-        "success",`All questions have been successfully removed from the skill "${skillName}".`
+        `All questions have been successfully removed from the skill "${skillName}".`
       );
     } catch (error) {
       console.error(
@@ -1362,7 +1383,7 @@ export class CurriculumAdmin extends BaseUser {
     await this.page.type(newClassroomUrlFragmentInputField, urlFragment);
     await this.clickOn(saveNewClassroomButton);
     await this.page.waitForSelector(createNewClassroomModal, {visible: false});
-    showMessage("success",`Created ${classroomName} classroom.`);
+    showMessage(`Created ${classroomName} classroom.`);
   }
 
   /**
@@ -1396,7 +1417,7 @@ export class CurriculumAdmin extends BaseUser {
 
     await this.clickOn(saveClassroomButton);
 
-    showMessage("success",`Updated ${classroomName} classroom.`);
+    showMessage(`Updated ${classroomName} classroom.`);
   }
 
   /**
@@ -1417,7 +1438,7 @@ export class CurriculumAdmin extends BaseUser {
     await this.page.waitForSelector(openTopicDropdownButton);
     await this.clickOn(saveClassroomButton);
 
-    showMessage("success",`Added ${topicName} topic to the ${classroomName} classroom.`);
+    showMessage(`Added ${topicName} topic to the ${classroomName} classroom.`);
   }
 
   /**
@@ -1428,7 +1449,7 @@ export class CurriculumAdmin extends BaseUser {
     const classroomTiles = await this.page.$$(classroomTileSelector);
 
     if (classroomTiles.length === classroomsCount) {
-      showMessage("success",`There are ${classroomsCount} classrooms present.`);
+      showMessage(`There are ${classroomsCount} classrooms present.`);
     } else {
       throw new Error(
         `Expected ${classroomTiles.length} classrooms found ${classroomsCount} classrooms.`
@@ -1444,7 +1465,7 @@ export class CurriculumAdmin extends BaseUser {
     await this.editClassroom(classroomName);
     await this.clickOn(publishClassroomButton);
     await this.clickOn(saveClassroomButton);
-    showMessage("success",`Published ${classroomName} classroom.`);
+    showMessage(`Published ${classroomName} classroom.`);
   }
 
   /**
@@ -1483,7 +1504,7 @@ export class CurriculumAdmin extends BaseUser {
         await this.clickOn(confirmDeleteClassroomButton);
         await this.page.waitForSelector(deleteClassroomModal, {visible: false});
 
-        showMessage("success",`Deleted ${classroomName} classroom.`);
+        showMessage(`Deleted ${classroomName} classroom.`);
         foundClassroom = true;
         break;
       }
@@ -1512,7 +1533,7 @@ export class CurriculumAdmin extends BaseUser {
 
     if (topicNodes.length === numberOfTopics) {
       showMessage(
-        "success",`The ${classroomName} classroom has ${numberOfTopics} topics.`
+        `The ${classroomName} classroom has ${numberOfTopics} topics.`
       );
     } else {
       throw new Error(

@@ -28,6 +28,7 @@ const imageToUpload = testConstants.data.curriculumAdminThumbnailImage;
 
 const createExplorationButton = 'button.e2e-test-create-new-exploration-button';
 const dismissWelcomeModalSelector = 'button.e2e-test-dismiss-welcome-modal';
+const dropdownToggleIcon = '.e2e-test-mobile-options-dropdown';
 const saveContentButton = 'button.e2e-test-save-state-content';
 const addInteractionButton = 'button.e2e-test-open-add-interaction-modal';
 const saveInteractionButton = 'button.e2e-test-save-interaction';
@@ -226,7 +227,7 @@ export class ExplorationEditor extends BaseUser {
    */
   async navigateToCreatorDashboardPage(): Promise<void> {
     await this.goto(creatorDashboardPage);
-    showMessage("success",'Creator dashboard page is opened successfully.');
+    showMessage('Creator dashboard page is opened successfully.');
   }
 
   /**
@@ -249,7 +250,7 @@ export class ExplorationEditor extends BaseUser {
   ): Promise<void> {
     await this.updateCardContent(content);
     await this.addInteraction(interaction);
-    showMessage("success",'A simple exploration is created.');
+    showMessage('A simple exploration is created.');
   }
 
   /**
@@ -280,7 +281,7 @@ export class ExplorationEditor extends BaseUser {
     } else {
       await this.clickOn(settingsTab);
     }
-    showMessage("success",'Settings tab is opened successfully.');
+    showMessage('Settings tab is opened successfully.');
   }
 
   /**
@@ -404,9 +405,26 @@ export class ExplorationEditor extends BaseUser {
       await this.page.waitForSelector(dismissWelcomeModalSelector, {
         hidden: true,
       });
-      showMessage("success",'Tutorial pop-up closed successfully.');
+      showMessage('Tutorial pop-up closed successfully.');
     } catch (error) {
-      showMessage("error",`welcome modal not found: ${error.message}`);
+      showMessage(`welcome modal not found: ${error.message}`);
+    }
+  }
+
+  /**
+   * Function to close editor navigation dropdown. Can be done by clicking
+   * on the dropdown toggle.
+   */
+  async closeEditorNavigationDropdownOnMobile(): Promise<void> {
+    try {
+      await this.page.waitForSelector(dropdownToggleIcon, {
+        visible: true,
+        timeout: 5000,
+      });
+      await this.clickOn(dropdownToggleIcon);
+      showMessage('Editor navigation closed successfully.');
+    } catch (error) {
+      showMessage(`Dropdown Toggle Icon not found: ${error.message}`);
     }
   }
 
@@ -421,7 +439,7 @@ export class ExplorationEditor extends BaseUser {
     await this.page.waitForSelector(dismissTranslationWelcomeModalSelector, {
       hidden: true,
     });
-    showMessage("success",'Translation tutorial pop-up closed successfully.');
+    showMessage('Translation tutorial pop-up closed successfully.');
   }
 
   /**
@@ -437,7 +455,7 @@ export class ExplorationEditor extends BaseUser {
     await this.type(stateContentInputField, `${content}`);
     await this.clickOn(saveContentButton);
     await this.page.waitForSelector(stateContentInputField, {hidden: true});
-    showMessage("success",'Card content is updated successfully.');
+    showMessage('Card content is updated successfully.');
   }
 
   /**
@@ -452,7 +470,7 @@ export class ExplorationEditor extends BaseUser {
     await this.page.waitForSelector(addInteractionModalSelector, {
       hidden: true,
     });
-    showMessage("success",`${interactionToAdd} interaction has been added successfully.`);
+    showMessage(`${interactionToAdd} interaction has been added successfully.`);
   }
 
   /**
@@ -482,7 +500,7 @@ export class ExplorationEditor extends BaseUser {
     await this.page.waitForSelector(addInteractionModalSelector, {
       hidden: true,
     });
-    showMessage("success",'Multiple Choice interaction has been added successfully.');
+    showMessage('Multiple Choice interaction has been added successfully.');
   }
 
   /**
@@ -498,7 +516,7 @@ export class ExplorationEditor extends BaseUser {
     await this.page.waitForSelector(addInteractionModalSelector, {
       hidden: true,
     });
-    showMessage("success",'Text input interaction has been added successfully.');
+    showMessage('Text input interaction has been added successfully.');
   }
 
   /**
@@ -524,7 +542,7 @@ export class ExplorationEditor extends BaseUser {
     await this.page.waitForSelector(addInteractionModalSelector, {
       hidden: true,
     });
-    showMessage("success",`${interactionToAdd} interaction has been added successfully.`);
+    showMessage(`${interactionToAdd} interaction has been added successfully.`);
   }
 
   /**
@@ -588,7 +606,7 @@ export class ExplorationEditor extends BaseUser {
     await this.clickOn(addNewResponseButton);
     await this.clickOn(correctAnswerInTheGroupSelector);
 
-    showMessage("success",'Image interaction has been added successfully.');
+    showMessage('Image interaction has been added successfully.');
   }
 
   /**
@@ -599,7 +617,7 @@ export class ExplorationEditor extends BaseUser {
     await this.type(addTitleBar, title);
     await this.page.keyboard.press('Tab');
 
-    showMessage("success",`Title has been updated to ${title}`);
+    showMessage(`Title has been updated to ${title}`);
   }
 
   /**
@@ -614,7 +632,7 @@ export class ExplorationEditor extends BaseUser {
     );
 
     if (expectedTitle === currentTitle) {
-      showMessage("success",'Title matches the expected title.');
+      showMessage('Title matches the expected title.');
     } else {
       throw new Error('Failed to update changes.');
     }
@@ -655,7 +673,7 @@ export class ExplorationEditor extends BaseUser {
       const goal = await this.page.evaluate(input => input.value, goalInput);
 
       if (goal === expectedGoal) {
-        showMessage("success",'The goal has been set for the exploration.');
+        showMessage('The goal has been set for the exploration.');
       } else {
         throw new Error('The goal does not match the expected goal.');
       }
@@ -685,7 +703,7 @@ export class ExplorationEditor extends BaseUser {
     });
     if (selectedCategory === expectedCategory) {
       showMessage(
-        "success",`The category ${selectedCategory} is same as expectedCategory.`
+        `The category ${selectedCategory} is same as expectedCategory.`
       );
     } else {
       throw new Error('Category is not correct.');
@@ -728,7 +746,7 @@ export class ExplorationEditor extends BaseUser {
 
     if (selectedLanguage.includes(expectedLanguage)) {
       showMessage(
-        "success",`The language ${selectedLanguage} contains the expected language.`
+        `The language ${selectedLanguage} contains the expected language.`
       );
     } else {
       throw new Error('Language is not correct.');
@@ -766,7 +784,7 @@ export class ExplorationEditor extends BaseUser {
       }
     }
 
-    showMessage("success",'All expected tags were added successfully.');
+    showMessage('All expected tags were added successfully.');
   }
 
   /**
@@ -786,7 +804,7 @@ export class ExplorationEditor extends BaseUser {
     const previewSummary = await this.page.$(dismissPreviewButton);
 
     if (previewSummary) {
-      showMessage("success",'Preview summary is visible.');
+      showMessage('Preview summary is visible.');
     } else {
       throw new Error('Preview summary is not visible.');
     }
@@ -811,7 +829,7 @@ export class ExplorationEditor extends BaseUser {
       autoTtsSwitch
     );
     if (autoTtsSwitchIsOn) {
-      showMessage("success",'Automatic Text-to-Speech is enabled.');
+      showMessage('Automatic Text-to-Speech is enabled.');
     } else {
       throw error('Automatic Text-to-Speech is disabled.');
     }
@@ -827,7 +845,7 @@ export class ExplorationEditor extends BaseUser {
     await this.clickOn(addRoleDropdown);
     await this.clickOn(collaboratorRoleOption);
     await this.clickOn(saveRoleButton);
-    showMessage("success",`${username} has been added as collaboratorRole.`);
+    showMessage(`${username} has been added as collaboratorRole.`);
   }
 
   /**
@@ -843,7 +861,7 @@ export class ExplorationEditor extends BaseUser {
     await this.clickOn(addRoleDropdown);
     await this.clickOn(playtesterRoleOption);
     await this.clickOn(saveRoleButton);
-    showMessage("success",`${username} has been added as playtester.`);
+    showMessage(`${username} has been added as playtester.`);
   }
 
   /**
@@ -858,7 +876,7 @@ export class ExplorationEditor extends BaseUser {
     const publishButton = await this.page.$(publishButtonSelector);
     if (!publishButton) {
       showMessage(
-        "success",'Exploration is set to Public and is accessible to Oppia users.'
+        'Exploration is set to Public and is accessible to Oppia users.'
       );
     } else {
       throw new Error(
@@ -890,7 +908,7 @@ export class ExplorationEditor extends BaseUser {
     );
 
     if (suggestionSwitchIsActive) {
-      showMessage("success",'suggestion notifications via email are enabled.');
+      showMessage('suggestion notifications via email are enabled.');
     } else {
       throw new Error('suggestion notifications via email are disabled.');
     }
@@ -924,7 +942,7 @@ export class ExplorationEditor extends BaseUser {
     await this.page.waitForSelector(toastMessage, {
       hidden: true,
     });
-    showMessage("success",'Exploration is saved successfully.');
+    showMessage('Exploration is saved successfully.');
     await this.waitForNetworkIdle();
   }
 
@@ -994,6 +1012,13 @@ export class ExplorationEditor extends BaseUser {
     // The '/' value is used to select the 'a new card called' option in the dropdown.
     await this.select(destinationCardSelector, '/');
     await this.type(addStateInput, cardName);
+    await this.clickOn(saveOutcomeDestButton);
+  }
+
+  async directLearnersToAlreadyExistingCard(cardName: string): Promise<void> {
+    await this.clickOn(openOutcomeDestButton);
+    await this.waitForElementToBeClickable(destinationCardSelector);
+    await this.select(destinationCardSelector, cardName);
     await this.clickOn(saveOutcomeDestButton);
   }
 
@@ -1101,7 +1126,6 @@ export class ExplorationEditor extends BaseUser {
       default:
         throw new Error(`Unsupported interaction type: ${interactionType}`);
     }
-
     await this.clickOn(feedbackEditorSelector);
     await this.type(stateContentInputField, feedback);
     // The '/' value is used to select the 'a new card called' option in the dropdown.
@@ -1126,6 +1150,12 @@ export class ExplorationEditor extends BaseUser {
         });
     } else {
       await this.clickOn(addAnotherResponseButton);
+      // The waitForNetworkIdle method waits for the response
+      // to the "Save Draft" request from change-list.service.ts
+      // to get executed, the Add Response modal to fully appear
+      // and all the fields in it to become clickable before
+      // moving on to next steps.
+      await this.waitForNetworkIdle();
     }
   }
 
@@ -1136,7 +1166,7 @@ export class ExplorationEditor extends BaseUser {
    * @param {string} [directToCardWhenStuck] - The card to direct to when the learner is stuck (optional).
    */
   async editDefaultResponseFeedback(
-    defaultResponseFeedback?: string,
+    defaultResponseFeedback: string,
     directToCard?: string,
     directToCardWhenStuck?: string
   ): Promise<void> {
@@ -1388,7 +1418,7 @@ export class ExplorationEditor extends BaseUser {
     }
 
     showMessage(
-      "success",`The misconception is ${isPresent ? '' : 'not'} present as expected.`
+      `The misconception is ${isPresent ? '' : 'not'} present as expected.`
     );
   }
 
@@ -1482,7 +1512,7 @@ export class ExplorationEditor extends BaseUser {
     }
 
     showMessage(
-      "success",`The misconception is ${isApplicable ? '' : 'not'} applicable as expected.`
+      `The misconception is ${isApplicable ? '' : 'not'} applicable as expected.`
     );
   }
 
@@ -1578,7 +1608,7 @@ export class ExplorationEditor extends BaseUser {
         `Preview is not on the ${cardName} card or is not loading correctly.`
       );
     }
-    showMessage("success",`Preview is on the ${cardName} card and is loading correctly.`);
+    showMessage(`Preview is on the ${cardName} card and is loading correctly.`);
   }
 
   /**
@@ -1653,7 +1683,7 @@ export class ExplorationEditor extends BaseUser {
     if (!toastMessage || !toastMessage.includes(message)) {
       throw new Error('Exploration did not complete successfully');
     }
-    showMessage("success",'Exploration has completed successfully');
+    showMessage('Exploration has completed successfully');
     await this.page.waitForSelector(explorationCompletionToastMessage, {
       hidden: true,
     });
@@ -1710,7 +1740,7 @@ export class ExplorationEditor extends BaseUser {
       currentSubscriberCount &&
       parseInt(currentSubscriberCount) === subscriberCount
     ) {
-      showMessage("success",`Number of subscribers is equal to ${subscriberCount}.`);
+      showMessage(`Number of subscribers is equal to ${subscriberCount}.`);
     } else {
       throw new Error(
         `Number of subscribers is not equal to ${subscriberCount}.`
@@ -1753,7 +1783,7 @@ export class ExplorationEditor extends BaseUser {
     );
 
     if (truncatedUsername === subscriberUsername) {
-      showMessage("success",`User ${username} is a subscriber.`);
+      showMessage(`User ${username} is a subscriber.`);
     } else {
       throw new Error(`User ${username} is not a subscriber.`);
     }
@@ -1799,7 +1829,7 @@ export class ExplorationEditor extends BaseUser {
         'document.querySelector(".oppia-feedback-popup-container") !== null',
         {timeout: 5000}
       );
-      showMessage("success",'Feedback submitted successfully');
+      showMessage('Feedback submitted successfully');
     } catch (error) {
       throw new Error('Feedback was not successfully submitted');
     }
@@ -1825,7 +1855,7 @@ export class ExplorationEditor extends BaseUser {
     );
     if (!activeContentType?.includes(contentType)) {
       showMessage(
-        "success",`Switching content type from ${activeContentType} to ${contentType}`
+        `Switching content type from ${activeContentType} to ${contentType}`
       );
       await this.clickOn(contentType);
     }
@@ -1888,7 +1918,7 @@ export class ExplorationEditor extends BaseUser {
     }, languageCode);
 
     if (translationElementText === expectedTranslation) {
-      showMessage("success",'The expected translation exists in the modal.');
+      showMessage('The expected translation exists in the modal.');
     } else {
       throw new Error(
         `The expected translation does not exist in the modal. Found "${translationElementText}", expected "${expectedTranslation}"`
@@ -1932,7 +1962,7 @@ export class ExplorationEditor extends BaseUser {
 
     await this.clickOn(modalSaveButton);
     await this.clickOn(modifyTranslationsModalDoneButton);
-    showMessage("success",'Successfully updated translation from modal.');
+    showMessage('Successfully updated translation from modal.');
   }
 
   /**
@@ -1956,7 +1986,7 @@ export class ExplorationEditor extends BaseUser {
 
     if (!activeContentType?.includes(contentType)) {
       showMessage(
-        "success",`Switching content type from ${activeContentType} to ${contentType}`
+        `Switching content type from ${activeContentType} to ${contentType}`
       );
       await this.clickOn(contentType);
     }
@@ -1991,7 +2021,7 @@ export class ExplorationEditor extends BaseUser {
 
     if (translation === expectedTranslation) {
       showMessage(
-        "success",'The newly updated translation exists in the translations tab.'
+        'The newly updated translation exists in the translations tab.'
       );
     } else {
       throw new Error(
@@ -2018,7 +2048,7 @@ export class ExplorationEditor extends BaseUser {
     );
     if (!activeContentType?.includes(contentType)) {
       showMessage(
-        "success",`Switching content type from ${activeContentType} to ${contentType}`
+        `Switching content type from ${activeContentType} to ${contentType}`
       );
       await this.clickOn(contentType);
     }
@@ -2065,7 +2095,7 @@ export class ExplorationEditor extends BaseUser {
     const feedbackSubjects = await this.page.$$(feedbackSubjectSelector);
 
     if (feedbackSubjects.length === expectedNumber) {
-      showMessage("success",'Number of suggestions matches the expected number.');
+      showMessage('Number of suggestions matches the expected number.');
     } else {
       throw new Error(
         `Number of suggestions does not match the expected number. Expected: ${expectedNumber}, Found: ${feedbackSubjects.length}`

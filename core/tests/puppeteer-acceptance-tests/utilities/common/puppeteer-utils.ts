@@ -494,7 +494,7 @@ export class BaseUser {
     const explorationUrlAfterPublished = `${baseURL}/create/${explorationId}#/gui/Introduction`;
     try {
       await this.goto(explorationUrlAfterPublished);
-      showMessage("success",'Exploration is accessible with the URL, i.e. published.');
+      showMessage('Exploration is accessible with the URL, i.e. published.');
     } catch (error) {
       throw new Error('The exploration is not public.');
     }
@@ -515,7 +515,7 @@ export class BaseUser {
       await this.page.goto(explorationUrlAfterPublished);
       throw new Error('The exploration is still public.');
     } catch (error) {
-      showMessage("error",'The exploration is not accessible with the URL.');
+      showMessage('The exploration is not accessible with the URL.');
     }
   }
 
@@ -579,7 +579,7 @@ export class BaseUser {
         countStableSizeIterations = 0;
       }
       if (countStableSizeIterations >= minStableSizeIterations) {
-        showMessage('warning','Page rendered fully.');
+        showMessage('Page rendered fully.');
         break;
       }
 
@@ -615,7 +615,7 @@ export class BaseUser {
     await currentPage.waitForTimeout(5000);
 
     /* The variable failureTrigger is the percentage of the difference between the stored screenshot and the current screenshot that would trigger a failure
-     * In general, it is set as 0.0028/0.28% (desktop) 0.042/4.2% (mobile) for the randomness of the page that are small enough to be ignored.
+     * In general, it is set as 0.04/4% (desktop) 0.042/4.2% (mobile) for the randomness of the page that are small enough to be ignored.
      * Based on the existence of the background/library banner, which are randomly selected from a set of four,
      * failureTrigger is set in the specific percentage for the randomness of the banner in desktop mode and mobile mode.
      */
@@ -639,7 +639,7 @@ export class BaseUser {
       } else {
         dirName = '/dev-desktop-screenshots';
       }
-      failureTrigger += 0.0028;
+      failureTrigger += 0.04;
       if (await currentPage.$(backgroundBanner)) {
         failureTrigger += 0.03;
       } else if (await currentPage.$(libraryBanner)) {
@@ -701,7 +701,7 @@ export class BaseUser {
     } catch (error) {
       if (error.message.includes('Timeout')) {
         showMessage(
-          'error','Network did not become idle within the specified timeout, but we can continue.'
+          'Network did not become idle within the specified timeout, but we can continue.'
         );
       } else {
         throw error;

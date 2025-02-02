@@ -8,8 +8,7 @@
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS-IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS O
-#  ANY KIND, either express or implied.
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
@@ -33,12 +32,11 @@ import sys
 import time
 from urllib import error as urlerror
 from urllib import request as urlrequest
-import sys
+
 from core import feconf
 from scripts import servers
 
 from typing import Dict, Final, Generator, List, Optional, Tuple, Union
-import shutil
 
 # Add third_party to path. Some scripts access feconf even before
 # python_libs is added to path.
@@ -258,6 +256,7 @@ ACCEPTANCE_TESTS_SUITE_NAMES = [
     'logged-out-user/track-and-resume-exploration-progress-via-url',
     'logged-out-user/play-lesson-in-different-languages-and-listen-'
     'to-voiceovers',
+    'logged-out-user/subscribe-to-newsletter-and-click-all-buttons',
     'moderator/edit-featured-activities-list',
     'moderator/view-recent-commits-and-feedback-messages',
     'practice-question-admin/add-and-remove-contribution-rights',
@@ -322,42 +321,6 @@ os.environ['PATH'] = os.pathsep.join([
     os.environ['PATH'],
 ])
 
-def compile_test_ts_files() -> None:
-    """Compiles the test TypeScript files into a build directory."""
-    puppeteer_acceptance_tests_dir_path = os.path.join(
-        os.getcwd(), 'core', 'tests', 'puppeteer-acceptance-tests'
-    )
-    build_dir_path = os.path.join(
-        puppeteer_acceptance_tests_dir_path,
-        'build',
-        'puppeteer-acceptance-tests'
-    )
-
-    # Remove existing build directory if it exists
-    if os.path.exists(build_dir_path):
-        shutil.rmtree(build_dir_path)
-
-    # Compile TypeScript files
-    cmd = (
-        './node_modules/typescript/bin/tsc -p '
-        './tsconfig.puppeteer-acceptance-tests.json'
-    )
-    proc = subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
-    )
-    _, encoded_stderr = proc.communicate()
-    stderr = encoded_stderr.decode('utf-8')
-
-    if stderr:
-        raise Exception(stderr)
-
-    # Copy additional required files
-    shutil.copytree(
-        os.path.join(puppeteer_acceptance_tests_dir_path, 'data'),
-        os.path.join(build_dir_path, 'data')
-    )
-
-
 
 def run_cmd(cmd_tokens: List[str]) -> str:
     """Runs the command and returns the output.
@@ -398,56 +361,45 @@ def require_cwd_to_be_oppia(allow_deploy_dir: bool = False) -> None:
     raise Exception('Please run this script from the oppia/ directory.')
 
 
-
-
 def open_new_tab_in_browser_if_possible(url: str) -> None:
     """Opens the given URL in a new browser tab, if possible."""
     if USER_PREFERENCES['open_new_tab_in_browser'] is None:
-        print_warning_message(
-            '\nDo you want the URL to be opened in the browser? '
-            'Confirm by entering y/ye/yes.'
-        )
-        USER_PREFERENCES['open_new_tab_in_browser'] = input().strip().lower()
-
+        print(
+            '\nDo you want the url to be opened in the browser? '
+            'Confirm by entering y/ye/yes.')
+        USER_PREFERENCES['open_new_tab_in_browser'] = input()
     if USER_PREFERENCES['open_new_tab_in_browser'] not in ['y', 'ye', 'yes']:
-        print_warning_message(f'Please open the following link in your browser: {url}')
+        print('Please open the following link in browser: %s' % url)
         return
-
     browser_cmds = ['brave', 'chromium-browser', 'google-chrome', 'firefox']
-    print_success_message(
+    print(
         'Please choose your default browser from the list using a number. '
-        'It will be given preference over other available options.'
+        'It will be given a preference over other available options.'
     )
     for index, browser in enumerate(browser_cmds):
-        print_success_message(f'{index + 1}). {browser}')
+        print('%s). %s' % (index + 1, browser))
 
-    try:
-        default_index = int(input().strip()) - 1
-    except ValueError:
-        print_error_message("Invalid input. Please enter a number corresponding to your browser.")
-        return
-
-    # Reorder the browsers based on the user's selection.
+    default_index = int(input().strip()) - 1
+    # Re-order the browsers by moving the user selected browser to the
+    # first position and copying over the browsers before and after
+    # the selected browser in the same order as they were present.
     ordered_browser_cmds = (
-        [browser_cmds[default_index]] +
-        browser_cmds[:default_index] +
-        browser_cmds[default_index + 1:]
-    )
-
+        [browser_cmds[default_index]] + browser_cmds[:default_index] +
+        browser_cmds[default_index + 1:])
     for cmd in ordered_browser_cmds:
         if subprocess.call(['which', cmd]) == 0:
-            try:
-                subprocess.check_call([cmd, url])
-                return
-            except subprocess.CalledProcessError:
-                print_error_message(f"Failed to open {url} using {cmd}.")
-
-    print_error_message('******************************************************************')
-    print_warning_message(
-        'WARNING: Unable to open browser. Please manually open the following '
-        'URL in a browser window, then press Enter to confirm.'
-    )
-    print(f'\n    {url}\n')
+            subprocess.check_call([cmd, url])
+            return
+    print('******************************************************************')
+    print(
+        'WARNING: Unable to open browser. Please manually open the following')
+    print('URL in a browser window, then press Enter to confirm.')
+    print('')
+    print('    %s' % url)
+    print('')
+    print('NOTE: To get rid of this message, open scripts/common.py and fix')
+    print('the function open_new_tab_in_browser_if_possible() to work on your')
+    print('system.')
     input()
 
 
@@ -633,26 +585,23 @@ def print_each_string_after_two_new_lines(strings: List[str]) -> None:
         strings: list(str). The strings to print.
     """
     for string in strings:
-        print_success_message(f'{string}\n')
+        print('%s\n' % string)
 
 
 def install_npm_library(library_name: str, version: str, path: str) -> None:
-    """Installs the npm library after ensuring it's not already installed.
+    """Installs the npm library after ensuring its not already installed.
 
     Args:
         library_name: str. The library name.
         version: str. The library version.
         path: str. The installation path for the library.
     """
-    print_success_message(f'Checking whether {library_name} is installed in {path}')
+    print('Checking whether %s is installed in %s' % (library_name, path))
     if not os.path.exists(os.path.join(NODE_MODULES_PATH, library_name)):
-        print_warning_message(f'Installing {library_name}@{version}...')
-        try:
-            subprocess.check_call(['yarn', 'add', f'{library_name}@{version}'])
-            print_success_message(f'Successfully installed {library_name}@{version}.')
-        except subprocess.CalledProcessError as e:
-            print_error_message(f'Failed to install {library_name}@{version}. Error: {e}')
-            raise
+        print('Installing %s' % library_name)
+        subprocess.check_call([
+            'yarn', 'add', '%s@%s' % (library_name, version)])
+
 
 def ask_user_to_confirm(message: str) -> None:
     """Asks user to perform a task and confirm once they are done.
@@ -662,15 +611,13 @@ def ask_user_to_confirm(message: str) -> None:
             to do.
     """
     while True:
-        print_warning_message('******************************************************')
-        print_warning_message(message)
-        print_warning_message('Confirm once you are done by entering y/ye/yes.\n')
+        print('******************************************************')
+        print(message)
+        print('Confirm once you are done by entering y/ye/yes.\n')
         answer = input().lower()
         if answer in AFFIRMATIVE_CONFIRMATIONS:
-            print_success_message('Task confirmed. Proceeding...')
             return
-        else:
-            print_error_message('Invalid input. Please enter y/ye/yes to confirm.')
+
 
 def get_personal_access_token() -> str:
     """"Returns the personal access token for the GitHub id of user.
@@ -782,8 +729,8 @@ def wait_for_port_to_be_in_use(port_number: int) -> None:
         waited_seconds += 1
     if (waited_seconds == MAX_WAIT_TIME_FOR_PORT_TO_OPEN_SECS
             and not is_port_in_use(port_number)):
-        print_error_message('Failed to start server on port %s, exiting ...' % port_number)
-        print_warning_message(
+        print('Failed to start server on port %s, exiting ...' % port_number)
+        print(
             'This may be because you do not have enough available '
             'memory. Please refer to '
             'https://github.com/oppia/oppia/wiki/Troubleshooting#low-ram')
@@ -909,7 +856,7 @@ def url_retrieve(
             'The URL %s should use HTTPS.' % url)
 
     # Try downloading using curl initially.
-    print_warning_message('Downloading %s to %s using curl...' % (url, output_path))
+    print('Downloading %s to %s using curl...' % (url, output_path))
     curl_task = subprocess.Popen(
     # The -L flag is for following redirects.
         ['curl', '-L', url, '--output', output_path],
@@ -918,33 +865,36 @@ def url_retrieve(
         out, err = curl_task.communicate()
     if curl_task.returncode == 0:
         # The download was successful.
-        print_success_message(f'Download completed successfully using curl.\n{out}')
-        if err.strip():
-            print_warning_message(f'curl warnings:\n{err}')
+        print(out)
+        print(err)
         return
 
     # Download with urlopen if curl fails.
-    print_error_message('Downloading using curl failed. Trying with urlopen.')
-    print_error_message('Error log for curl: %s' % err)
+    print('Downloading using curl failed. Trying with urlopen.')
+    print('Error log for curl: %s' % err)
     failures = 0
     success = False
     while not success and failures < max_attempts:
         try:
-            with urlrequest.urlopen(url, context=ssl.create_default_context()) as response:
+            with urlrequest.urlopen(
+                url, context=ssl.create_default_context()
+            ) as response:
                 with open(output_path, 'wb') as output_file:
                     output_file.write(response.read())
-            print_success_message(f'Download completed successfully on attempt {failures + 1}.')
-            success = True
         except (
             urlerror.URLError, ssl.SSLError,
             client.IncompleteRead, ConnectionResetError
         ) as exception:
             failures += 1
-            print_error_message(f'Attempt {failures} of {max_attempts} failed when downloading {url}.')
-            print_error_message(f'Error in common.url_retrieve: {exception}')
+            print('Attempt %d of %d failed when downloading %s.' % (
+                failures, max_attempts, url))
+            print('Error in common.url_retrieve: %s' % exception)
             if failures >= max_attempts:
                 raise exception
-            print_warning_message('Retrying download...')
+            print('Error: %s' % exception)
+            print('Retrying download.')
+        else:
+            success = True
 
 
 def setup_chrome_bin_env_variable() -> None:
@@ -959,7 +909,7 @@ def setup_chrome_bin_env_variable() -> None:
             os.environ['CHROME_BIN'] = path
             break
     else:
-        print_error_message('Chrome is not found, stopping...')
+        print('Chrome is not found, stopping...')
         raise Exception('Chrome not found.')
 
 
@@ -972,12 +922,12 @@ def run_ng_compilation() -> None:
             with servers.managed_ng_build() as proc:
                 proc.wait()
         except subprocess.CalledProcessError as error:
-            print_error_message(error.output)
+            print(error.output)
             sys.exit(error.returncode)
         if os.path.isdir(ng_bundles_dir_name):
             break
     if not os.path.isdir(ng_bundles_dir_name):
-        print_error_message('Failed to complete ng build compilation, exiting...')
+        print('Failed to complete ng build compilation, exiting...')
         sys.exit(1)
 
 
@@ -1080,70 +1030,12 @@ def is_oppia_server_already_running() -> bool:
     """
     for port in PORTS_USED_BY_OPPIA_PROCESSES_IN_LOCAL_E2E_TESTING:
         if is_port_in_use(port):
-            print_warning_message(
+            print(
                 'There is already a server running on localhost:%s. '
                 'Please terminate it before running the end-to-end tests. '
                 'Exiting.' % port)
             return True
     return False
-
-import re
-
-def colorize_red(text):
-    """Wrap a text block in red."""
-    return f"\033[31m{text}\033[0m"
-
-def process_logs_and_highlight_errors(logs):
-    """
-    Highlights any error block in red, including its details and stack traces.
-
-    Args:
-        logs: str. The logs output from the tests.
-
-    Returns:
-        str. The processed logs with fully highlighted errors.
-    """
-    highlighted_logs = []
-    error_block = []
-    in_error_block = False
-
-    for line in logs.splitlines():
-        # Start of an error block (keywords like "FAIL", "ERROR", or "Traceback")
-        if re.search(r'(FAIL|ERROR|TimeoutError|Exception:|Traceback|Unknown value for)', line, re.IGNORECASE):
-            if not in_error_block:
-                in_error_block = True
-            error_block.append(line)
-
-        # Continuation of an error block (stack traces, indented lines, or blank lines)
-        elif in_error_block and (line.startswith(" ") or line.strip() == "" or re.match(r'\s+at\s+', line)):
-            error_block.append(line)
-
-        # End of error block (non-error line)
-        else:
-            if in_error_block:
-                # Wrap the entire block in red and reset error block
-                highlighted_logs.append(colorize_red("\n".join(error_block)))
-                error_block = []
-                in_error_block = False
-            # Append normal log lines as they are
-            highlighted_logs.append(line)
-
-    # Finalize any remaining error block
-    if error_block:
-        highlighted_logs.append(colorize_red("\n".join(error_block)))
-
-    return "\n".join(highlighted_logs)
-
-
-
-
-
-
-
-
-
-
-
 
 
 def start_subprocess_for_result(cmd: List[str]) -> Tuple[bytes, bytes]:
@@ -1152,37 +1044,3 @@ def start_subprocess_for_result(cmd: List[str]) -> Tuple[bytes, bytes]:
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = task.communicate()
     return out, err
-
-
-def print_error_message(message: str) -> None:
-    """Prints an error message in red."""
-    print(f"\033[91m{message}\033[0m")  # ANSI code for red
-
-
-def print_warning_message(message: str) -> None:
-    
-    print(f"{message}")  # ANSI code for yellow
-
-
-def print_success_message(message: str) -> None:
-    """Prints a success message in green."""
-    print(f"\033[92m{message}\033[0m")  # ANSI code for green
-
-
-if __name__ == "__main__":
-    import sys
-    if len(sys.argv) < 3:
-        print("Usage: python common.py <message_type> <message>")
-        sys.exit(1)
-
-    message_type = sys.argv[1]
-    message = " ".join(sys.argv[2:])
-
-    if message_type == "error":
-        print_error_message(message)
-    elif message_type == "warning":
-        print_warning_message(message)
-    elif message_type == "success":
-        print_success_message(message)
-    else:
-        print("Invalid message type. Use 'error', 'warning', or 'success'.")

@@ -79,7 +79,7 @@ export class BlogPostEditor extends BaseUser {
     await this.saveTheChanges();
     await this.saveTheDraftBlogPost();
 
-    showMessage("success",'Successfully created a draft blog post!');
+    showMessage('Successfully created a draft blog post!');
     await this.goto(blogDashboardUrl);
   }
 
@@ -107,7 +107,7 @@ export class BlogPostEditor extends BaseUser {
             _this.clickOn(LABEL_FOR_CONFIRM_BUTTON);
           },
         });
-        showMessage("success",'Draft blog post with given title deleted successfully!');
+        showMessage('Draft blog post with given title deleted successfully!');
         return;
       }
     }
@@ -128,7 +128,7 @@ export class BlogPostEditor extends BaseUser {
           ' completely filled.'
       );
     }
-    showMessage("warning",
+    showMessage(
       'Published button is disabled when blog post data is not completely' +
         ' filled.'
     );
@@ -221,7 +221,7 @@ export class BlogPostEditor extends BaseUser {
     await this.clickOn('PUBLISH');
     await this.page.waitForSelector(confirmButton);
     await this.clickOn(LABEL_FOR_CONFIRM_BUTTON);
-    showMessage("success",'Successfully published a blog post!');
+    showMessage('Successfully published a blog post!');
   }
 
   /**
@@ -262,7 +262,7 @@ export class BlogPostEditor extends BaseUser {
         await this.page.waitForSelector(confirmButton);
         await this.clickOn(LABEL_FOR_CONFIRM_BUTTON);
         showMessage(
-          "success",'Published blog post with given title deleted successfully!'
+          'Published blog post with given title deleted successfully!'
         );
         return;
       }
@@ -297,7 +297,7 @@ export class BlogPostEditor extends BaseUser {
     }
 
     showMessage(
-      "error",'User is unable to publish the blog post because ' + toastMessageWarning
+      'User is unable to publish the blog post because ' + toastMessageWarning
     );
   }
 
@@ -310,7 +310,7 @@ export class BlogPostEditor extends BaseUser {
       throw new Error(`Number of blog posts is not equal to ${number}`);
     }
 
-    showMessage("success",`Number of blog posts is equal to ${number}`);
+    showMessage(`Number of blog posts is equal to ${number}`);
   }
 
   /**
@@ -319,7 +319,7 @@ export class BlogPostEditor extends BaseUser {
   async navigateToPublishTab(): Promise<void> {
     await this.goto(blogDashboardUrl);
     await this.clickOn('PUBLISHED');
-    showMessage("success",'Navigated to publish tab.');
+    showMessage('Navigated to publish tab.');
   }
 
   /**
@@ -352,7 +352,7 @@ export class BlogPostEditor extends BaseUser {
       );
     }
     showMessage(
-      "warning",`Draft blog post with title ${checkDraftBlogPostByTitle} exists!`
+      `Draft blog post with title ${checkDraftBlogPostByTitle} exists!`
     );
   }
 
@@ -380,13 +380,13 @@ export class BlogPostEditor extends BaseUser {
       }
     }
     if (count === 0) {
-      showMessage("error",`Blog post with title ${blogPostTitle} does not exist!`);
+      throw new Error(`Blog post with title ${blogPostTitle} does not exist!`);
     } else if (count > 1) {
       throw new Error(
         `Blog post with title ${blogPostTitle} exists more than once!`
       );
     }
-    showMessage("warning",`Published blog post with title ${blogPostTitle} exists!`);
+    showMessage(`Published blog post with title ${blogPostTitle} exists!`);
   }
 
   /**
@@ -396,7 +396,7 @@ export class BlogPostEditor extends BaseUser {
     await this.goto(blogDashboardUrl);
     try {
       await this.page.waitForSelector(unauthErrorContainer);
-      showMessage("success",'User unauthorized to access blog dashboard!');
+      showMessage('User unauthorized to access blog dashboard!');
     } catch (err) {
       throw new Error(
         'No unauthorization error on accessing the blog dashboard page!'
@@ -415,17 +415,9 @@ export class BlogPostEditor extends BaseUser {
     await this.goto(blogDashboardUrl);
     try {
       await this.page.waitForSelector(blogDashboardAuthorDetailsModal);
-      showMessage("success",'User authorized to access blog dashboard!');
+      showMessage('User authorized to access blog dashboard!');
     } catch (err) {
       throw new Error('User unauthorized to access blog dashboard!');
-    }
-  }
-  async expectNonExistentElementToBeVisible(selector: string): Promise<void> {
-    const element = await this.page.$(selector);
-    if (element) {
-        throw new Error(`Element ${selector} was found but should not exist.`);
-    } else {
-        console.log(`Verified: Element ${selector} does not exist.`);
     }
   }
 }

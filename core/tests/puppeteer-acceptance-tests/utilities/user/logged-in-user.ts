@@ -171,7 +171,7 @@ export class LoggedInUser extends BaseUser {
 
     await this.clickOn(subscribeButton);
     await this.page.waitForSelector(unsubscribeLabel);
-    showMessage("success",`Subscribed to the creator with username ${username}.`);
+    showMessage(`Subscribed to the creator with username ${username}.`);
   }
 
   /**
@@ -313,7 +313,7 @@ export class LoggedInUser extends BaseUser {
     );
 
     if (explorationTitle?.trim() === title) {
-      showMessage("success",`Exploration with title ${title} is present.`);
+      showMessage(`Exploration with title ${title} is present.`);
     } else {
       throw new Error(`Exploration with title ${title} is not present.`);
     }
@@ -342,7 +342,7 @@ export class LoggedInUser extends BaseUser {
         'Expected "Error 404" to be present on the page, but it was not.'
       );
     } else {
-      showMessage("warning",'The link returns 404 as expected.');
+      showMessage('The link returns 404 as expected.');
     }
   }
 
@@ -598,7 +598,7 @@ export class LoggedInUser extends BaseUser {
         await addToPlayLaterButtons[lessonIndex].click();
       }
 
-      showMessage("success",`Lesson "${lessonTitle}" added to 'Play Later' list.`);
+      showMessage(`Lesson "${lessonTitle}" added to 'Play Later' list.`);
     } catch (error) {
       const newError = new Error(
         `Failed to add lesson to 'Play Later' list: ${error}`
@@ -705,7 +705,7 @@ export class LoggedInUser extends BaseUser {
       // Confirm removal.
       await this.clickOn(confirmRemovalFromPlayLaterButton);
 
-      showMessage("success",`Lesson "${lessonName}" removed from 'Play Later' list.`);
+      showMessage(`Lesson "${lessonName}" removed from 'Play Later' list.`);
     } catch (error) {
       const newError = new Error(
         `Failed to remove lesson from 'Play Later' list: ${error}`
@@ -942,7 +942,7 @@ export class LoggedInUser extends BaseUser {
           `Profile picture does not match. Expected image source to be different from: ${defaultProfilePicture}`
         );
       }
-      showMessage("success",'Profile picture is different from the default one.');
+      showMessage('Profile picture is different from the default one.');
     } catch (error) {
       const newError = new Error(`Failed to check profile picture: ${error}`);
       newError.stack = error.stack;
@@ -1060,7 +1060,7 @@ export class LoggedInUser extends BaseUser {
       throw new Error('Page is not in RTL mode');
     }
 
-    showMessage("success",'Page is displayed in RTL mode.');
+    showMessage('Page is displayed in RTL mode.');
   }
 
   /**
@@ -1167,7 +1167,7 @@ export class LoggedInUser extends BaseUser {
           addGoalButtons[matchingTopicIndex]
         );
         await addGoalButtons[matchingTopicIndex]?.click();
-        showMessage("success",`Goal "${goal}" added.`);
+        showMessage(`Goal "${goal}" added.`);
       } else {
         throw new Error(`Goal not found: ${goal}`);
       }

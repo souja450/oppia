@@ -208,7 +208,7 @@ export class QuestionAdmin extends BaseUser {
         `${username} does not have rights for reviewing questions!`
       );
     } else {
-      showMessage("success",`${username} has rights for reviewing questions.`);
+      showMessage(`${username} has rights for reviewing questions.`);
     }
   }
 
@@ -226,7 +226,7 @@ export class QuestionAdmin extends BaseUser {
         `${username} does not have rights for submitting questions!`
       );
     } else {
-      showMessage("success",`${username} has rights for submitting questions.`);
+      showMessage(`${username} has rights for submitting questions.`);
     }
   }
 
@@ -242,7 +242,7 @@ export class QuestionAdmin extends BaseUser {
     if (questionReviewStatusForUser === 'Allowed') {
       throw new Error(`${username} has rights for reviewing questions!`);
     } else {
-      showMessage("success",`${username} doesn't have rights for reviewing questions.`);
+      showMessage(`${username} doesn't have rights for reviewing questions.`);
     }
   }
 
@@ -258,7 +258,7 @@ export class QuestionAdmin extends BaseUser {
     if (questionSubmitStatusForUser === 'Allowed') {
       throw new Error(`${username} has rights for submitting questions!`);
     } else {
-      showMessage("warning",`${username} doesn't have rights for submitting questions.`);
+      showMessage(`${username} doesn't have rights for submitting questions.`);
     }
   }
 

@@ -185,7 +185,7 @@ export class SuperAdmin extends BaseUser {
         return;
       }
     }
-    showMessage("error",`Role ${role} does not exists.`);
+    throw new Error(`Role ${role} does not exists.`);
   }
 
   /**
@@ -204,7 +204,7 @@ export class SuperAdmin extends BaseUser {
     await this.page.waitForSelector('.e2e-test-select-topic option');
     const optionElements = await selectElement.$$('option');
     if (!optionElements.length) {
-      showMessage("error",'No options found in the select element');
+      throw new Error('No options found in the select element');
     }
 
     for (const optionElement of optionElements) {
@@ -213,7 +213,7 @@ export class SuperAdmin extends BaseUser {
         optionElement
       );
       if (!optionText) {
-        showMessage("warning",'Option text not found');
+        throw new Error('Option text not found');
       }
 
       if (optionText.trim() === topicName) {
@@ -222,7 +222,7 @@ export class SuperAdmin extends BaseUser {
           optionElement
         );
         if (!optionValue) {
-          showMessage("warning",'Option value not found');
+          throw new Error('Option value not found');
         }
 
         await this.page.select(selectTopicForAssignmentSelector, optionValue);
@@ -257,7 +257,7 @@ export class SuperAdmin extends BaseUser {
         userRoleElements[i]
       );
       if (roleText.toLowerCase() === role) {
-        showMessage("success",`User ${username} has the ${role} role!`);
+        showMessage(`User ${username} has the ${role} role!`);
         await this.goto(currentPageUrl);
         return;
       }
@@ -284,7 +284,7 @@ export class SuperAdmin extends BaseUser {
         throw new Error(`User has the "${role}" role!`);
       }
     }
-    showMessage("error",`User ${username} does not have the ${role} role!`);
+    showMessage(`User ${username} does not have the ${role} role!`);
     await this.goto(currentPageUrl);
   }
 
@@ -312,7 +312,7 @@ export class SuperAdmin extends BaseUser {
 
     await this.waitForElementToBeClickable(deleteRoleButton);
     await deleteRoleButton.click();
-    showMessage("success",`Role ${role} has been removed from user ${username}`);
+    showMessage(`Role ${role} has been removed from user ${username}`);
     return;
   }
 
@@ -337,7 +337,7 @@ export class SuperAdmin extends BaseUser {
         throw new Error(`Action "${action}" is not allocated to the role`);
       }
     }
-    showMessage("success",`"${actions}" is/are allocated to the role`);
+    showMessage(`"${actions}" is/are allocated to the role`);
   }
 
   /**
@@ -369,7 +369,7 @@ export class SuperAdmin extends BaseUser {
       }
     }
 
-    showMessage("success",`"${users}" is/are assigned to the role`);
+    showMessage(`"${users}" is/are assigned to the role`);
   }
 
   /**
@@ -406,7 +406,7 @@ export class SuperAdmin extends BaseUser {
         await this.waitForElementToBeClickable(reloadButton);
         await reloadButton.click();
         await this.waitForNetworkIdle();
-        showMessage("success",`Reloaded exploration ${explorationName}`);
+        showMessage(`Reloaded exploration ${explorationName}`);
         return;
       }
     }
@@ -430,7 +430,7 @@ export class SuperAdmin extends BaseUser {
         throw new Error(`Activity "${activityName}" is not present`);
       }
 
-      showMessage("success",`Activity "${activityName}" is present`);
+      showMessage(`Activity "${activityName}" is present`);
     } catch (error) {
       console.error(
         `An error occurred while checking the presence of the activity "${activityName}":`,
@@ -483,7 +483,7 @@ export class SuperAdmin extends BaseUser {
         }
       }
 
-      showMessage("warning",`Collection "${collectionName}" not found`);
+      throw new Error(`Collection "${collectionName}" not found`);
     } catch (error) {
       console.error(
         `An error occurred while reloading the collection "${collectionName}":`,
@@ -534,7 +534,7 @@ export class SuperAdmin extends BaseUser {
         `Expected ${expectedNumber} activities, but found ${noOfActivities.length}`
       );
     }
-    showMessage("success",'Expected number of activities are present');
+    showMessage('Expected number of activities are present');
   }
 
   /**
@@ -555,13 +555,13 @@ export class SuperAdmin extends BaseUser {
     await this.clickOn(topicsTab);
     const isTopicPresent = await this.isTextPresentOnPage(topicName);
     if (!isTopicPresent) {
-      showMessage("warning",
+      throw new Error(
         `Topic "${topicName}" was not found.
          It was expected to be present in Topics and Skills Dashboard.`
       );
     } else {
       showMessage(
-        "warning",`The topic "${topicName}" is present on the Topics and Skills
+        `The topic "${topicName}" is present on the Topics and Skills
          Dashboard as expected.`
       );
     }
@@ -582,7 +582,7 @@ export class SuperAdmin extends BaseUser {
          It was expected to be present in Topics and Skills Dashboard.`
       );
     } else {
-      showMessage("success",
+      showMessage(
         `The skill "${skillName}" is present on the Topics and Skills
          Dashboard as expected.`
       );
@@ -616,7 +616,7 @@ export class SuperAdmin extends BaseUser {
       'The Oppia Classroom'
     );
     if (isClassroomPresent) {
-      showMessage("warning",'The Oppia Math Classroom is present at the URL as expected');
+      showMessage('The Oppia Math Classroom is present at the URL as expected');
     } else {
       throw new Error(
         `The Oppia Math Classroom is not present at the ${Url} url`
@@ -647,7 +647,7 @@ export class SuperAdmin extends BaseUser {
         titleElement
       );
       if (titleRegex.test(title.trim())) {
-        showMessage("success",'The blog post is present on the blog dashboard.');
+        showMessage('The blog post is present on the blog dashboard.');
         return;
       }
     }
@@ -676,7 +676,7 @@ export class SuperAdmin extends BaseUser {
         );
       }
 
-      showMessage("warning",
+      showMessage(
         'Activities tab is not available in the production environment, as expected.'
       );
     } catch (error) {
@@ -707,7 +707,7 @@ export class SuperAdmin extends BaseUser {
         nameElement
       );
       if (name === parameterName) {
-        showMessage("success",'Platform parameter found.');
+        showMessage('Platform parameter found.');
         return platformParameter;
       }
     }
@@ -739,7 +739,7 @@ export class SuperAdmin extends BaseUser {
         el => el.textContent?.trim()
       );
 
-      showMessage("warning",
+      throw new Error(
         `Text did not match within the specified time. Actual message: "${actualMessage}", expected message: "${expectedMessage}"`
       );
     }
@@ -788,7 +788,7 @@ export class SuperAdmin extends BaseUser {
 
       await this.waitForElementToBeClickable(paramValueInput);
       await this.page.type(paramValueInput, ruleValue);
-      showMessage("success",'Rule added successfully.');
+      showMessage('Rule added successfully.');
     } catch (error) {
       console.error(
         `Failed to add rule to platform parameter "${platformParam}": ${error}`
@@ -823,7 +823,7 @@ export class SuperAdmin extends BaseUser {
       await platformParameter.waitForSelector(paramValueInput, {visible: true});
       const valueInputs = await platformParameter.$$(paramValueInput);
       await valueInputs[1].type(value);
-      showMessage("success",'Default value changed successfully.');
+      showMessage('Default value changed successfully.');
     } catch (error) {
       console.error(
         `Failed to change default value of platform parameter "${platformParam}": ${error}`
@@ -904,7 +904,7 @@ export class SuperAdmin extends BaseUser {
         );
       } else {
         showMessage(
-          "success",`Rule with condition "${expectedCondition}" and value "${expectedValue}" 
+          `Rule with condition "${expectedCondition}" and value "${expectedValue}" 
           found in platform parameter "${platformParam}".`
         );
         break;

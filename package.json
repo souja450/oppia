@@ -1,9 +1,8 @@
 {
   "name": "oppia",
-  "version": "3.4.3",
+  "version": "3.4.4",
   "description": "Oppia enables the creation of interactive online lessons.",
   "scripts": {
-    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -141,7 +141,7 @@ export class TranslationAdmin extends BaseUser {
       );
     } else {
       showMessage(
-        "success",`Selected user has translation rights for ${displayedLanguage}`
+        `Selected user has translation rights for ${displayedLanguage}`
       );
     }
   }

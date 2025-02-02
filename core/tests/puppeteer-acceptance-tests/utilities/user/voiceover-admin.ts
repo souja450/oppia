@@ -23,6 +23,7 @@ import {showMessage} from '../common/show-message';
 const baseURL = testConstants.URLs.BaseURL;
 
 const dismissWelcomeModalSelector = 'button.e2e-test-dismiss-welcome-modal';
+const dropdownToggleIcon = '.e2e-test-mobile-options-dropdown';
 
 const explorationSettingsTab = '.e2e-test-settings-tab';
 const editVoiceoverArtistButton = 'span.e2e-test-edit-voice-artist-roles';
@@ -58,7 +59,7 @@ export class VoiceoverAdmin extends BaseUser {
       await this.clickOn(explorationSettingsTab);
     }
 
-    showMessage("success",'Navigation to settings tab is successful.');
+    showMessage('Navigation to settings tab is successful.');
   }
 
   /**
@@ -80,7 +81,7 @@ export class VoiceoverAdmin extends BaseUser {
       hidden: true,
     });
 
-    showMessage("success",'Tutorial pop-up is closed.');
+    showMessage('Tutorial pop-up is closed.');
   }
 
   /**
@@ -96,7 +97,23 @@ export class VoiceoverAdmin extends BaseUser {
     const editorUrl = `${baseURL}/create/${explorationId}`;
     await this.goto(editorUrl);
 
-    showMessage("success",'Navigation to exploration editor is successful.');
+    showMessage('Navigation to exploration editor is successful.');
+  }
+
+  /**
+   * Function to close editor navigation dropdown. Can be done by clicking
+   * on the dropdown toggle.
+   */
+  async closeEditorNavigationDropdownOnMobile(): Promise<void> {
+    try {
+      await this.page.waitForSelector(dropdownToggleIcon, {
+        visible: true,
+      });
+      await this.clickOn(dropdownToggleIcon);
+      showMessage('Editor navigation closed successfully.');
+    } catch (error) {
+      showMessage(`Dropdown Toggle Icon not found: ${error.message}`);
+    }
   }
 
   /**
@@ -116,7 +133,7 @@ export class VoiceoverAdmin extends BaseUser {
       );
     } else {
       showMessage(
-        "success",`Voiceover artist '${artistUsername}' does not exist and can be added.`
+        `Voiceover artist '${artistUsername}' does not exist and can be added.`
       );
     }
   }
@@ -144,9 +161,9 @@ export class VoiceoverAdmin extends BaseUser {
           `div.e2e-test-voice-artist-${voiceArtists[i]}`,
           {visible: true}
         );
-        showMessage("success",voiceArtists[i] + ' has been added as a voice artist.');
+        showMessage(voiceArtists[i] + ' has been added as a voice artist.');
       } catch (error) {
-        showMessage("success",voiceArtists[i] + ' is not added.');
+        showMessage(voiceArtists[i] + ' is not added.');
       }
     }
   }
@@ -168,7 +185,7 @@ export class VoiceoverAdmin extends BaseUser {
         `Expected error message to be ${expectedErrorMessage} but got ${errorMessage}`
       );
     } else {
-      showMessage("success",`Toast Error Message: ${errorMessage}`);
+      showMessage(`Toast Error Message: ${errorMessage}`);
     }
   }
 
@@ -194,7 +211,7 @@ export class VoiceoverAdmin extends BaseUser {
       );
     }
     showMessage(
-      "success",`${artistUsername} added as voiceover artist! Current voice artists for this exploration are: ${allVoiceoverArtists}`
+      `${artistUsername} added as voiceover artist! Current voice artists for this exploration are: ${allVoiceoverArtists}`
     );
   }
 
@@ -226,7 +243,7 @@ export class VoiceoverAdmin extends BaseUser {
       );
     } else {
       showMessage(
-        "success",`Confirmed: Voiceover artist '${artistUsername}' is still not listed.`
+        `Confirmed: Voiceover artist '${artistUsername}' is still not listed.`
       );
     }
   }

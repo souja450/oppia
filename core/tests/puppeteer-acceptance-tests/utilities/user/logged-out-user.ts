@@ -366,6 +366,15 @@ const stayAnonymousCheckbox = '.e2e-test-stay-anonymous-checkbox';
 
 const getStartedHeader = '.e2e-test-get-started-page';
 
+const newsletterEmailInputField = '.e2e-test-newsletter-input';
+const newsletterSubscribeButton = '.e2e-test-newsletter-subscribe-btn';
+const newsletterSubscriptionThanksMessage =
+  '.e2e-test-thanks-subscribe-message';
+const watchAVideoButtonInThanksForSubscribe =
+  '.e2e-test-thanks-for-subscribe-watch-video-btn';
+const readOurBlogButtonInThanksForSubscribe =
+  '.e2e-test-thanks-for-subscribe-read-blog-btn';
+const readBlogUrl = testConstants.URLs.ReadBlogLink;
 /**
  * The KeyInput type is based on the key names from the UI Events KeyboardEvent key Values specification.
  * According to this specification, the keys for the numbers 0 through 9 are named 'Digit0' through 'Digit9'.
@@ -797,7 +806,7 @@ export class LoggedOutUser extends BaseUser {
           but it opens ${url} instead.`
       );
     }
-    showMessage("success",'The Watch A Video button opens the right page.');
+    showMessage('The Watch A Video button opens the right page.');
   }
 
   /**
@@ -821,7 +830,7 @@ export class LoggedOutUser extends BaseUser {
           but it opens ${this.page.url()} instead.`
       );
     } else {
-      showMessage("success",'The Read Our Blog button opens the Blog page.');
+      showMessage('The Read Our Blog button opens the Blog page.');
     }
   }
 
@@ -848,7 +857,7 @@ export class LoggedOutUser extends BaseUser {
 
     await this.clickOn(subscribeButton);
     await this.page.waitForSelector(unsubscribeLabel);
-    showMessage("success",`Subscribed to the creator with username ${username}.`);
+    showMessage(`Subscribed to the creator with username ${username}.`);
   }
 
   /**
@@ -870,7 +879,7 @@ export class LoggedOutUser extends BaseUser {
     );
 
     if (explorationTitle?.trim() === title) {
-      showMessage("success",`Exploration with title ${title} is present.`);
+      showMessage(`Exploration with title ${title} is present.`);
     } else {
       throw new Error(`Exploration with title ${title} is not present.`);
     }
@@ -899,7 +908,7 @@ export class LoggedOutUser extends BaseUser {
       );
     } else {
       showMessage(
-        "error",'The dismiss button closes the Donation thanks modal on Donate page ' +
+        'The dismiss button closes the Donation thanks modal on Donate page ' +
           'and shows the Donate page.'
       );
     }
@@ -929,7 +938,7 @@ export class LoggedOutUser extends BaseUser {
       );
     } else {
       showMessage(
-        "error",'The dismiss button closes the Donation thanks modal on About page ' +
+        'The dismiss button closes the Donation thanks modal on About page ' +
           'and shows the About page.'
       );
     }
@@ -1542,7 +1551,7 @@ export class LoggedOutUser extends BaseUser {
         `Expected first testimonial name to contain "${firstName}" again, but got "${firstTestimonialNameAgain}"`
       );
     }
-    showMessage("success",'The testimonial carousel in teach page is working correctly.');
+    showMessage('The testimonial carousel in teach page is working correctly.');
   }
 
   /**
@@ -1601,7 +1610,7 @@ export class LoggedOutUser extends BaseUser {
       );
     }
     showMessage(
-      "success",'The lesson creators carousel in teach page is working correctly.'
+      'The lesson creators carousel in teach page is working correctly.'
     );
   }
 
@@ -1619,20 +1628,20 @@ export class LoggedOutUser extends BaseUser {
         'The lesson creation section is not visible on the teach page.'
       );
     } else {
-      showMessage("success",'The lesson creation section is visible on the teach page.');
+      showMessage('The lesson creation section is visible on the teach page.');
     }
     await this.clickOn(lessonCreationAccordionExpandButtonInTeachPage);
     await this.page.waitForSelector(
       lessonCreationAccordionPanelContentInTeachPage,
       {visible: true}
     );
-    showMessage("success",'Lesson Creation accordion expand button is working correctly');
+    showMessage('Lesson Creation accordion expand button is working correctly');
     await this.clickOn(lessonCreationAccordionCloseButtonInTeachPage);
     await this.page.waitForSelector(
       lessonCreationAccordionPanelContentInTeachPage,
       {hidden: true}
     );
-    showMessage("error",'Lesson Creation accordion close button is working correctly');
+    showMessage('Lesson Creation accordion close button is working correctly');
   }
 
   /**
@@ -1852,7 +1861,7 @@ export class LoggedOutUser extends BaseUser {
     if (!donorBox) {
       throw new Error('The donor box is not visible on the donate page.');
     } else {
-      showMessage("success",'The donor box is visible on the donate page.');
+      showMessage('The donor box is visible on the donate page.');
     }
   }
 
@@ -2022,7 +2031,7 @@ export class LoggedOutUser extends BaseUser {
         `Failed to scroll to bookmark: ${bookmark}. ` + error.message;
       throw error;
     }
-    showMessage("success",`Scrolled successfully to the bookmark: ${bookmark}`);
+    showMessage(`Scrolled successfully to the bookmark: ${bookmark}`);
   }
 
   /**
@@ -2072,7 +2081,7 @@ export class LoggedOutUser extends BaseUser {
     // If no expected activities were provided, check if the featured activities list is empty.
     if (expectedActivityTitles.length === 0) {
       if (featuredActivities.length === 0) {
-        showMessage("warning",'No featured activities found as expected.');
+        showMessage('No featured activities found as expected.');
         return;
       }
       throw new Error('Expected no featured activities, but found some');
@@ -2089,7 +2098,7 @@ export class LoggedOutUser extends BaseUser {
           `Expected to find activity with title ${expectedActivity}, but didn't`
         );
       }
-      showMessage("success",`Activity with title ${expectedActivity} found as expected.`);
+      showMessage(`Activity with title ${expectedActivity} found as expected.`);
     }
   }
 
@@ -2181,8 +2190,8 @@ export class LoggedOutUser extends BaseUser {
       el => el.textContent
     );
     if (!secondVolunteerSlideSlideHeading?.includes(secondSlideHeading)) {
-      showMessage(
-        "warning",`Expected second volunteer slide heading to contain "${secondSlideHeading}", but got "${secondVolunteerSlideSlideHeading}"`
+      throw new Error(
+        `Expected second volunteer slide heading to contain "${secondSlideHeading}", but got "${secondVolunteerSlideSlideHeading}"`
       );
     }
 
@@ -2194,8 +2203,8 @@ export class LoggedOutUser extends BaseUser {
       el => el.textContent
     );
     if (!firstVolunteerSlideHeadingAgain?.includes(firstSlideHeading)) {
-      showMessage(
-        "warning",`Expected first volunteer slide heading to contain "${firstSlideHeading}" again, but got "${firstVolunteerSlideHeadingAgain}"`
+      throw new Error(
+        `Expected first volunteer slide heading to contain "${firstSlideHeading}" again, but got "${firstVolunteerSlideHeadingAgain}"`
       );
     }
   }
@@ -2293,11 +2302,11 @@ export class LoggedOutUser extends BaseUser {
 
     if (classroomTiles.length === classroomsCount) {
       showMessage(
-        "success",`${classroomsCount} classrooms are present in classrooms page.`
+        `${classroomsCount} classrooms are present in classrooms page.`
       );
     } else {
-      showMessage(
-        "warning",`Expect ${classroomsCount} classrooms to be present in classrooms page, found: ${classroomTiles.length} classrooms.`
+      throw new Error(
+        `Expect ${classroomsCount} classrooms to be present in classrooms page, found: ${classroomTiles.length} classrooms.`
       );
     }
   }
@@ -2350,7 +2359,7 @@ export class LoggedOutUser extends BaseUser {
     if (!donorBox) {
       throw new Error('The donor box is not visible on the about page.');
     } else {
-      showMessage("success",'The donor box is visible on the about page.');
+      showMessage('The donor box is visible on the about page.');
     }
   }
 
@@ -2400,7 +2409,7 @@ export class LoggedOutUser extends BaseUser {
         `The ${classroomName} classroom name is not visible. URL: ${this.page.url()}`
       );
     } else {
-      showMessage("success",`The ${classroomName} classroom name is visible.`);
+      showMessage(`The ${classroomName} classroom name is visible.`);
     }
   }
 
@@ -2415,11 +2424,11 @@ export class LoggedOutUser extends BaseUser {
 
     if (classroomTiles.length === classroomsCount) {
       showMessage(
-        "success",`${classroomsCount} classrooms are present in classrooms page.`
+        `${classroomsCount} classrooms are present in classrooms page.`
       );
     } else {
-      showMessage(
-        "success",`Expect ${classroomsCount} classrooms to be present in classrooms page, found: ${classroomTiles.length} classrooms.`
+      throw new Error(
+        `Expect ${classroomsCount} classrooms to be present in classrooms page, found: ${classroomTiles.length} classrooms.`
       );
     }
   }
@@ -2447,7 +2456,7 @@ export class LoggedOutUser extends BaseUser {
       );
     }
 
-    showMessage("error",`User is on error page with status code ${statusCode}.`);
+    showMessage(`User is on error page with status code ${statusCode}.`);
   }
 
   /**
@@ -2477,6 +2486,84 @@ export class LoggedOutUser extends BaseUser {
   }
 
   /**
+   * Function to submit an email to the newsletter input field.
+   * @param {string} email - The email to submit.
+   */
+  async submitEmailForNewsletter(email: string): Promise<void> {
+    await this.waitForElementToBeClickable(newsletterEmailInputField);
+    await this.type(newsletterEmailInputField, email);
+    await this.clickOn(newsletterSubscribeButton);
+  }
+
+  /**
+   * Function to check for presence of Thanks Message to verify Newsletter Subscription.
+   */
+  async expectNewsletterSubscriptionThanksMessage(): Promise<void> {
+    await this.page.waitForSelector(newsletterSubscriptionThanksMessage);
+    const thanksMessage = await this.page.$eval(
+      newsletterSubscriptionThanksMessage,
+      element => element.textContent
+    );
+
+    if (!thanksMessage || !thanksMessage.includes('Thanks for subscribing!')) {
+      throw new Error('Thank you message does not exist or incorrect');
+    }
+
+    showMessage('Subscribed to newsletter successfully');
+  }
+
+  /**
+   * Function to verify the Watch a Video button after subscribing to newsletter.
+   */
+  async clickWatchAVideoButton(): Promise<void> {
+    await this.page.waitForSelector(watchAVideoButtonInThanksForSubscribe);
+    const buttonText = await this.page.$eval(
+      watchAVideoButtonInThanksForSubscribe,
+      element => (element as HTMLElement).innerText
+    );
+    if (buttonText !== 'Watch a video') {
+      throw new Error('The Watch A Video button does not exist!');
+    }
+    await Promise.all([
+      this.clickAndWaitForNavigation(watchAVideoButtonInThanksForSubscribe),
+    ]);
+    await this.waitForPageToFullyLoad();
+
+    const url = this.page.url();
+    if (!url.includes(testConstants.OppiaSocials.YouTube.Domain)) {
+      throw new Error(
+        `The Watch A Video button should open the right page,
+          but it opens ${url} instead.`
+      );
+    }
+    showMessage('The Watch A Video button opens the right page.');
+  }
+
+  /**
+   * Function to verify the Read Blog button after subscribing to newsletter.
+   */
+  async clickReadBlogButton(): Promise<void> {
+    await this.page.waitForSelector(readOurBlogButtonInThanksForSubscribe);
+    const buttonText = await this.page.$eval(
+      readOurBlogButtonInThanksForSubscribe,
+      element => (element as HTMLElement).innerText
+    );
+    if (buttonText !== 'Read our blog') {
+      throw new Error('The Read Our Blog button does not exist!');
+    }
+    await this.clickAndWaitForNavigation(readOurBlogButtonInThanksForSubscribe);
+
+    if (this.page.url() !== readBlogUrl) {
+      throw new Error(
+        `The Read Our Blog button should open the Blog page,
+          but it opens ${this.page.url()} instead.`
+      );
+    } else {
+      showMessage('The Read Our Blog button opens the Blog page.');
+    }
+  }
+
+  /**
    * Function to verify if the exploration is completed via checking the toast message.
    * @param {string} message - The expected toast message.
    */
@@ -2494,7 +2581,7 @@ export class LoggedOutUser extends BaseUser {
       throw new Error('Exploration did not complete successfully');
     }
 
-    showMessage("success",'Exploration has completed successfully');
+    showMessage('Exploration has completed successfully');
 
     await this.page.waitForSelector(explorationCompletionToastMessage, {
       hidden: true,
@@ -2639,7 +2726,7 @@ export class LoggedOutUser extends BaseUser {
             );
           }
         }
-        showMessage("success",'All expected search results found in search results.');
+        showMessage('All expected search results found in search results.');
       }
     } catch (error) {
       const newError = new Error(`Failed to check search results: ${error}`);
@@ -3037,7 +3124,7 @@ export class LoggedOutUser extends BaseUser {
    */
   async returnToStoryFromLastState(): Promise<void> {
     await this.clickAndWaitForNavigation('Return to Story');
-    showMessage("success",'Returned to story from the last state.');
+    showMessage('Returned to story from the last state.');
   }
 
   /**
@@ -3064,7 +3151,7 @@ export class LoggedOutUser extends BaseUser {
       );
       await searchResultsElements[lessonIndex].click();
       await this.waitForStaticAssetsToLoad();
-      showMessage("warning",`Lesson "${lessonTitle}" opened from search results.`);
+      showMessage(`Lesson "${lessonTitle}" opened from search results.`);
     } catch (error) {
       const newError = new Error(
         `Failed to open lesson from search results: ${error}`
@@ -3104,7 +3191,7 @@ export class LoggedOutUser extends BaseUser {
         'document.querySelector(".oppia-feedback-popup-container") !== null',
         {timeout: 5000}
       );
-      showMessage("success",'Feedback submitted successfully');
+      showMessage('Feedback submitted successfully');
     } catch (error) {
       throw new Error('Feedback was not successfully submitted');
     }
@@ -3173,7 +3260,7 @@ export class LoggedOutUser extends BaseUser {
    */
   async closeAttributionModal(): Promise<void> {
     await this.clickOn(closeAttributionModalButton);
-    showMessage("success",'Attribution modal closed successfully');
+    showMessage('Attribution modal closed successfully');
   }
 
   /**
@@ -3283,7 +3370,7 @@ export class LoggedOutUser extends BaseUser {
         visible: true,
         timeout: 5000,
       });
-      showMessage("success",'Checkpoint modal found.');
+      showMessage('Checkpoint modal found.');
       // Closing the checkpoint modal.
       await this.clickOn(closeLessonInfoTooltipSelector);
     } catch (error) {
@@ -3329,7 +3416,7 @@ export class LoggedOutUser extends BaseUser {
     if (hasInputFields) {
       throw new Error('The page should not have any input fields.');
     }
-    showMessage("warning",'The page does not have any input fields, as expected.');
+    showMessage('The page does not have any input fields, as expected.');
   }
 
   /**
@@ -3412,7 +3499,7 @@ export class LoggedOutUser extends BaseUser {
         `Card content is not same as expected. Actual: ${cardContent.trim()}, Expected: ${expectedCardContent}.`
       );
     }
-    showMessage("success",'Card content is as expected.');
+    showMessage('Card content is as expected.');
   }
 
   /**
@@ -3431,7 +3518,7 @@ export class LoggedOutUser extends BaseUser {
   async expectSignUpButtonToBePresent(): Promise<void> {
     await this.waitForStaticAssetsToLoad();
     await this.page.waitForSelector(signUpButton, {timeout: 5000});
-    showMessage("success",'Sign-up button present.');
+    showMessage('Sign-up button present.');
   }
 
   /**
@@ -3451,7 +3538,7 @@ export class LoggedOutUser extends BaseUser {
         throw new Error('Sign-in button not found.');
       }
     }
-    showMessage("success",'Sign-in button present.');
+    showMessage('Sign-in button present.');
   }
 
   /**
@@ -3483,7 +3570,7 @@ export class LoggedOutUser extends BaseUser {
       if (!shouldBeFound) {
         throw new Error('Progress remainder is found, which is not expected.');
       }
-      showMessage("success",'Progress reminder modal found.');
+      showMessage('Progress reminder modal found.');
     } catch (error) {
       if (error instanceof puppeteer.errors.TimeoutError) {
         // Closing checkpoint modal if appears.
@@ -3494,8 +3581,8 @@ export class LoggedOutUser extends BaseUser {
           await this.clickOn(closeLessonInfoTooltipSelector);
         }
         if (shouldBeFound) {
-          showMessage(
-            "error",'Progress remainder is not found, which is not expected.'
+          throw new Error(
+            'Progress remainder is not found, which is not expected.'
           );
         }
       } else {
@@ -3548,7 +3635,7 @@ export class LoggedOutUser extends BaseUser {
   async expectCreateAccountToBePresent(): Promise<void> {
     await this.waitForStaticAssetsToLoad();
     await this.page.waitForSelector(createAccountButton, {timeout: 3000});
-    showMessage("success",'Create Account button is present.');
+    showMessage('Create Account button is present.');
   }
 
   /**
@@ -3648,7 +3735,7 @@ export class LoggedOutUser extends BaseUser {
   async expectLessonInfoToShowLastUpdated(): Promise<void> {
     await this.waitForStaticAssetsToLoad();
     await this.page.waitForSelector(lastUpdatedInfoSelector, {timeout: 3000});
-    showMessage("success",'Last updated info is present.');
+    showMessage('Last updated info is present.');
   }
 
   /**
@@ -3681,7 +3768,7 @@ export class LoggedOutUser extends BaseUser {
       throw new Error('"Save Progress" button found, which is not expected.');
     } catch (error) {
       if (error instanceof puppeteer.errors.TimeoutError) {
-        showMessage("warning",'"save Progress" button not found, as expected.');
+        showMessage('"save Progress" button not found, as expected.');
       }
     }
   }
@@ -3723,7 +3810,7 @@ export class LoggedOutUser extends BaseUser {
     }
 
     if (href !== expectedUrl) {
-      showMessage("error",
+      throw new Error(
         `The ${platform} share link does not match the expected URL. Expected: ${expectedUrl}, Found: ${href}`
       );
     }
@@ -3768,7 +3855,7 @@ export class LoggedOutUser extends BaseUser {
         `Expected page language to be ${expectedLanguage}, but it was ${actualLanguage}`
       );
     }
-    showMessage("success",'Page language matches the expected one.');
+    showMessage('Page language matches the expected one.');
   }
 
   /**
@@ -3945,7 +4032,7 @@ export class LoggedOutUser extends BaseUser {
   async verifyVoiceoverIsPlaying(shouldBePlaying: true): Promise<void> {
     // If the pause button is present, it means the audio is playing.
     await this.page.waitForSelector(pauseVoiceoverButton);
-    showMessage("success",`Voiceover is ${shouldBePlaying ? 'playing' : 'paused'}.`);
+    showMessage(`Voiceover is ${shouldBePlaying ? 'playing' : 'paused'}.`);
   }
 
   /**

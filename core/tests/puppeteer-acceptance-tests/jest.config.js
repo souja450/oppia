@@ -33,5 +33,4 @@ module.exports = {
     '^expect$': 'expect/build/index.js',
     '^expect/(.*)$': 'expect/$1',
   },
-  
 };

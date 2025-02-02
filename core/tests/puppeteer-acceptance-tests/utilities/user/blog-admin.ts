@@ -64,7 +64,7 @@ export class BlogAdmin extends BaseUser {
     await this.type(maximumTagLimitInput, limit.toString());
     await this.clickOn(LABEL_FOR_SAVE_BUTTON);
 
-    showMessage("success",`Successfully updated the tag limit to ${limit}!`);
+    showMessage(`Successfully updated the tag limit to ${limit}!`);
   }
 
   /**
@@ -78,7 +78,7 @@ export class BlogAdmin extends BaseUser {
     if (parseInt(tagLimit) === limit) {
       throw new Error(`Maximum tag limit is already ${limit}!`);
     }
-    showMessage("error",`Maximum tag limit is not ${limit}!`);
+    showMessage(`Maximum tag limit is not ${limit}!`);
   }
 
   /**
@@ -92,7 +92,7 @@ export class BlogAdmin extends BaseUser {
     if (parseInt(tagLimit) !== limit) {
       throw new Error(`Maximum tag limit is not ${limit}!`);
     }
-    showMessage("error",`Maximum tag is currently ${limit}!`);
+    showMessage(`Maximum tag is currently ${limit}!`);
   }
 }
 

@@ -15,14 +15,11 @@
 """Checks and outputs which test suites to run in the CI."""
 
 from __future__ import annotations
-import sys
+
 import argparse
 import json
 import os
 import subprocess
-import logging
-import re 
-from scripts.utils.color_utils import ColorUtils
 
 from scripts import generate_root_files_mapping
 
@@ -45,68 +42,6 @@ _PARSER.add_argument(
     '--output_all_test_suites',
     action='store_true',
 )
-
-# Set up logging
-LOG_FILE = 'ci_test_suites.log'
-logging.basicConfig(
-    filename=LOG_FILE,
-    level=logging.INFO,
-    format='%(message)s'
-)
-def process_logs_and_highlight_errors(logs: str) -> str:
-    """
-    Processes the test logs and highlights error messages.
-    
-    Args:
-        logs (str): The raw logs from test execution.
-    
-    Returns:
-        str: Logs with errors highlighted.
-    """
-    error_keywords = ["ERROR", "FAIL", "TimeoutError"]
-    processed_logs = []
-
-    for line in logs.splitlines():
-        if any(keyword in line for keyword in error_keywords):
-            processed_logs.append(ColorUtils.error(line))
-        else:
-            processed_logs.append(line)
-
-    return "\n".join(processed_logs)
-def simulate_log_highlighting():
-    raw_logs = """
-    Starting acceptance tests...
-    Suite: blog-editor/create-and-publish-a-blog-post-with-required-details
-    ...
-
-    FAIL core/tests/puppeteer-acceptance-tests/specs/blog-editor/create-and-publish-a-blog-post-with-required-details.spec.ts (47.772 s)
-      Blog Editor
-        ✕ should create and publish a blog post with thumbnail, title, body and tags.
-        ✕ should not create an empty blog post.
-
-      ● Blog Editor › should create and publish a blog post with thumbnail, title, body and tags.
-
-        TimeoutError: Navigation timeout of 30000 ms exceeded
-
-          at ../../../node_modules/puppeteer/src/common/LifecycleWatcher.ts:211:18
-    """
-    highlighted_logs = process_logs_and_highlight_errors(raw_logs)
-    print(highlighted_logs)
-
-
-def log_error(message: str):
-    """Logs error message to console and log file."""
-    colorized_message = ColorUtils.error(message)
-    print(colorized_message)  # Print to console in red
-    logging.error(colorized_message)  # Log the same red-colored message
-
-try:
-    generate_root_files_mapping.main()
-except Exception as e:
-    # Colorize the error message in red
-    error_message = ColorUtils.error(f"Error generating root files mapping: {e}")
-    print(error_message)  # Display in terminal
-    sys.exit(1)
 
 
 class LighthousePageDict(TypedDict):

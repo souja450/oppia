@@ -24,7 +24,7 @@ import shutil
 import signal
 import subprocess
 import threading
-from scripts.utils.color_utils import ColorUtils
+
 from core import feconf
 from core import utils
 from scripts import common
@@ -37,6 +37,8 @@ from typing import (
 )
 
 
+# Here we use type Any because the argument 'popen_kwargs' can accept an
+# arbitrary number of keyword arguments with different types of values.
 @contextlib.contextmanager
 def managed_process(
     command_args: Sequence[Union[int, str]],
@@ -55,6 +57,12 @@ def managed_process(
         human_readable_name: str. The human-readable name of the process. Used
             by the function's logging logic to improve readability.
         shell: bool. Whether the command should be run inside of its own shell.
+            WARNING: Executing shell commands that incorporate unsanitized input
+            from an untrusted source makes a program vulnerable to
+            [shell injection](https://w.wiki/_Ac2), a serious security flaw
+            which can result in arbitrary command execution. For this reason,
+            the use of `shell=True` is **strongly discouraged** in cases where
+            the command string is constructed from external input.
         timeout_secs: int. The time allotted for the managed process and its
             descendants to terminate themselves. After the timeout, any
             remaining processes will be killed abruptly.
@@ -79,7 +87,7 @@ def managed_process(
 
     command = ' '.join(non_empty_args) if shell else list(non_empty_args)
     human_readable_command = command if shell else ' '.join(command)
-    msg = ColorUtils.info(f"Starting new {human_readable_name}: {human_readable_command}")
+    msg = 'Starting new %s: %s' % (human_readable_name, human_readable_command)
     print(msg)
     popen_proc = psutil.Popen(command, shell=shell, **popen_kwargs)
 
@@ -87,7 +95,7 @@ def managed_process(
         yield popen_proc
     finally:
         proc_name = get_proc_info(popen_proc)
-        print(ColorUtils.error(f"Stopping {proc_name}..."))
+        print('Stopping %s...' % proc_name)
         procs_still_alive = [popen_proc]
 
         try:
@@ -100,31 +108,37 @@ def managed_process(
             procs_to_kill = []
             for proc in procs_still_alive:
                 if proc.is_running():
-                    logging.info(ColorUtils.warning(f"Terminating {get_proc_info(proc)}..."))
+                    logging.info('Terminating %s...' % get_proc_info(proc))
                     proc.terminate()
                     procs_to_kill.append(proc)
                 else:
-                    logging.info(ColorUtils.success(f"{get_proc_info(proc)} has already ended."))
+                    logging.info('%s has already ended.' % get_proc_info(proc))
 
             procs_gone, procs_still_alive = (
                 psutil.wait_procs(procs_to_kill, timeout=timeout_secs))
             for proc in procs_still_alive:
-                logging.warning(ColorUtils.error(f"Forced to kill {get_proc_info(proc)}!"))
+                logging.warning('Forced to kill %s!' % get_proc_info(proc))
                 proc.kill()
             for proc in procs_gone:
-                logging.info(ColorUtils.success(f"{get_proc_info(proc)} has already ended."))
+                logging.info('%s has already ended.' % get_proc_info(proc))
         except Exception:
+            # NOTE: Raising an exception while exiting a context manager is bad
+            # practice, so we log and suppress exceptions instead.
             logging.exception(
-                ColorUtils.error(f"Failed to stop {get_proc_info(popen_proc)} gracefully!"))
+                'Failed to stop %s gracefully!' % get_proc_info(popen_proc))
 
         exit_code = popen_proc.returncode
+        # Note that negative values indicate termination by a signal: SIGTERM,
+        # SIGINT, etc. Also, exit code 143 indicates that the process received
+        # a SIGTERM from the OS, and it succeeded in gracefully terminating.
         if (
             exit_code is not None and exit_code > 0 and exit_code != 143
             and raise_on_nonzero_exit
         ):
             raise Exception(
-                ColorUtils.error(
-                    f"Process {proc_name} exited unexpectedly with exit code {exit_code}"))
+                'Process %s exited unexpectedly with exit code %s' %
+                (proc_name, exit_code))
+
 
 @contextlib.contextmanager
 def managed_dev_appserver(
@@ -179,16 +193,18 @@ def managed_dev_appserver(
         '--dev_appserver_log_level', log_level,
         app_yaml_path
     ]
-    print(ColorUtils.info(f"Starting GAE Development Server on port {port}..."))
-    with managed_process(
-        dev_appserver_args,
-        human_readable_name='GAE Development Server',
-        shell=True,
-        env=env,
-    ) as proc:
+    with contextlib.ExitStack() as stack:
+        # OK to use shell=True here because we are not passing anything that
+        # came from an untrusted user, only other callers of the script,
+        # so there's no risk of shell-injection attacks.
+        proc = stack.enter_context(managed_process(
+            dev_appserver_args,
+            human_readable_name='GAE Development Server',
+            shell=True,
+            env=env,
+        ))
         common.wait_for_port_to_be_in_use(port)
         yield proc
-    print(ColorUtils.error("GAE Development Server stopped."))
 
 
 @contextlib.contextmanager
@@ -217,14 +233,11 @@ def managed_firebase_auth_emulator(
 
     # OK to use shell=True here because we are passing string literals and
     # constants, so there is no risk of a shell-injection attack.
-    print(ColorUtils.info("Starting Firebase Emulator..."))
-    with managed_process(
-        emulator_args, human_readable_name='Firebase Emulator', shell=True
-    ) as proc:
+    proc_context = managed_process(
+        emulator_args, human_readable_name='Firebase Emulator', shell=True)
+    with proc_context as proc:
         common.wait_for_port_to_be_in_use(feconf.FIREBASE_EMULATOR_PORT)
         yield proc
-    print(ColorUtils.error("Firebase Emulator stopped."))
-
 
 
 @contextlib.contextmanager
@@ -253,14 +266,13 @@ def managed_elasticsearch_dev_server() -> Iterator[psutil.Process]:
     }
     # OK to use shell=True here because we are passing string literals and
     # constants, so there is no risk of a shell-injection attack.
-    print(ColorUtils.info("Starting ElasticSearch Server..."))
-    with managed_process(
+    proc_context = managed_process(
         es_args, human_readable_name='ElasticSearch Server', env=es_env,
-        shell=True
-    ) as proc:
+        shell=True)
+    with proc_context as proc:
         common.wait_for_port_to_be_in_use(feconf.ES_LOCALHOST_PORT)
         yield proc
-    print(ColorUtils.error("ElasticSearch Server stopped."))
+
 
 @contextlib.contextmanager
 def managed_cloud_datastore_emulator(
@@ -307,7 +319,6 @@ def managed_cloud_datastore_emulator(
             shell=True))
 
         common.wait_for_port_to_be_in_use(feconf.CLOUD_DATASTORE_EMULATOR_PORT)
-        print(ColorUtils.success("Cloud Datastore Emulator started."))
 
         # Environment variables required to communicate with the emulator.
         stack.enter_context(common.swap_env(
@@ -327,30 +338,27 @@ def managed_cloud_datastore_emulator(
 
         yield proc
 
-        print(ColorUtils.error("Stopping Cloud Datastore Emulator..."))
-        
+
 @contextlib.contextmanager
 def managed_redis_server() -> Iterator[psutil.Process]:
     """Run the redis server within a context manager that ends it gracefully."""
 
     # Check if a redis dump file currently exists. This file contains residual
-    # data from a previous run of the redis server. If it exists, remove it so
-    # that the redis server starts with a clean slate.
+    # data from a previous run of the redis server. If it exists, removes the
+    # dump file so that the redis server starts with a clean slate.
     if os.path.exists(common.REDIS_DUMP_PATH):
-        print(ColorUtils.warning("Redis dump file found. Removing it..."))
         os.remove(common.REDIS_DUMP_PATH)
 
-    print(ColorUtils.info("Starting Redis Server..."))
+    # OK to use shell=True here because we are passing string literals and
+    # constants, so there is no risk of a shell-injection attack.
     proc_context = managed_process(
         [common.REDIS_SERVER_PATH, common.REDIS_CONF_PATH],
         human_readable_name='Redis Server', shell=True)
     with proc_context as proc:
         common.wait_for_port_to_be_in_use(feconf.REDISPORT)
-        print(ColorUtils.success("Redis Server started successfully."))
         try:
             yield proc
         finally:
-            print(ColorUtils.error("Stopping Redis Server..."))
             subprocess.check_call([common.REDIS_CLI_PATH, 'shutdown', 'nosave'])
 
 
@@ -375,8 +383,6 @@ def create_managed_web_browser(
     """
     url = 'http://localhost:%s/' % port
     human_readable_name = 'Web Browser'
-
-    print(ColorUtils.info(f"Attempting to open web browser for {url}..."))
     if common.is_linux_os():
         return managed_process(
             ['xdg-open', url], human_readable_name=human_readable_name)
@@ -385,10 +391,8 @@ def create_managed_web_browser(
             ['open', url], human_readable_name=human_readable_name)
     else:
         raise Exception(
-            ColorUtils.error(
-                "Unable to identify the Operating System and therefore, unable to launch the web browser."
-            )
-        )
+            'Unable to identify the Operating System and therefore, unable to '
+            'launch the web browser.')
 
 
 @contextlib.contextmanager
@@ -413,13 +417,14 @@ def managed_ng_build(
         compiler_args.append('--prod')
     if watch_mode:
         compiler_args.append('--watch')
-
-    print(ColorUtils.info("Starting Angular Compiler..."))
     with contextlib.ExitStack() as exit_stack:
+        # OK to use shell=True here because we are passing string literals and
+        # constants, so there is no risk of a shell-injection attack.
         proc = exit_stack.enter_context(managed_process(
             compiler_args,
             human_readable_name='Angular Compiler',
             shell=True,
+            # Capture compiler's output to detect when builds have completed.
             stdout=subprocess.PIPE
         ))
 
@@ -429,21 +434,25 @@ def managed_ng_build(
         if watch_mode:
             for line in iter(read_line_func, None):
                 common.write_stdout_safe(line)
+                # Message printed when a compilation has succeeded. We break
+                # after the first one to ensure the site is ready to be visited.
                 if b'Build at: ' in line:
                     break
             else:
-                raise IOError(ColorUtils.error("First Angular build never completed"))
+                # If none of the lines contained the string 'Built at',
+                # raise an error because a build hasn't finished successfully.
+                raise IOError('First build never completed')
 
         def print_proc_output() -> None:
             """Prints the proc's output until it is exhausted."""
             for line in iter(read_line_func, None):
                 common.write_stdout_safe(line)
 
+        # Start a thread to print the rest of the compiler's output to stdout.
         printer_thread = threading.Thread(target=print_proc_output)
         printer_thread.start()
         exit_stack.callback(printer_thread.join)
 
-        print(ColorUtils.success("Angular Compiler is running."))
         yield proc
 
 
@@ -492,16 +501,19 @@ def managed_webpack_compiler(
         common.NODE_BIN_PATH, common.WEBPACK_BIN_PATH, '--config', config_path,
     ]
     if max_old_space_size:
+        # NOTE: --max-old-space-size is a flag for Node.js, not the Webpack
+        # compiler, so we insert it immediately after NODE_BIN_PATH.
         compiler_args.insert(1, '--max-old-space-size=%d' % max_old_space_size)
     if watch_mode:
         compiler_args.extend(['--color', '--watch', '--progress'])
-
-    print(ColorUtils.info("Starting Webpack Compiler..."))
     with contextlib.ExitStack() as exit_stack:
+        # OK to use shell=True here because we are passing string literals and
+        # constants, so there is no risk of a shell-injection attack.
         proc = exit_stack.enter_context(managed_process(
             compiler_args,
             human_readable_name='Webpack Compiler',
             shell=True,
+            # Capture compiler's output to detect when builds have completed.
             stdout=subprocess.PIPE
         ))
 
@@ -511,21 +523,25 @@ def managed_webpack_compiler(
         if watch_mode:
             for line in iter(read_line_func, None):
                 common.write_stdout_safe(line)
+                # Message printed when a compilation has succeeded. We break
+                # after the first one to ensure the site is ready to be visited.
                 if b'Built at: ' in line:
                     break
             else:
-                raise IOError(ColorUtils.error("First Webpack build never completed"))
+                # If none of the lines contained the string 'Built at',
+                # raise an error because a build hasn't finished successfully.
+                raise IOError('First build never completed')
 
         def print_proc_output() -> None:
             """Prints the proc's output until it is exhausted."""
             for line in iter(read_line_func, None):
                 common.write_stdout_safe(line)
 
+        # Start a thread to print the rest of the compiler's output to stdout.
         printer_thread = threading.Thread(target=print_proc_output)
         printer_thread.start()
         exit_stack.callback(printer_thread.join)
 
-        print(ColorUtils.success("Webpack Compiler is running."))
         yield proc
 
 
@@ -540,7 +556,6 @@ def get_chromedriver_version() -> str:
         '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
         if common.is_mac_os() else 'google-chrome')
     try:
-        print(ColorUtils.info("Fetching Chrome version..."))
         output = subprocess.check_output([chrome_command, '--version'])
     except OSError as e:
         # For the error message on macOS, we need to add the backslashes in.
@@ -548,7 +563,7 @@ def get_chromedriver_version() -> str:
         # command on their terminal and, as mentioned above, the macOS
         # chrome version command has spaces in the path which need to be
         # escaped for successful terminal use.
-        error_message = (
+        raise Exception(
             'Failed to execute "%s --version" command. This is used to '
             'determine the chromedriver version to use. Please set the '
             'chromedriver version manually using the '
@@ -556,21 +571,17 @@ def get_chromedriver_version() -> str:
             'chromedriver version to be used, please follow the '
             'instructions mentioned in the following URL:\n'
             'https://chromedriver.chromium.org/downloads/version-selection'
-            % chrome_command.replace(' ', r'\ '))
-        print(ColorUtils.error(error_message))
-        raise Exception(error_message) from e
+            % chrome_command.replace(' ', r'\ ')) from e
 
     installed_version_bytes = b''.join(re.findall(rb'[0-9.]', output))
     installed_version_parts = installed_version_bytes.decode('utf-8').split('.')
-        # For Chrome versions 115 and above, compatible Chromedriver and Chrome
+    # For Chrome versions 115 and above, compatible Chromedriver and Chrome
     # versions have the same version numbers. For earlier versions, we use a
     # Google API to find the compatible Chromedriver version. See
     # https://chromedriver.chromium.org/downloads/version-selection for details.
-    
     if int(installed_version_parts[0]) >= 115:
         chromedriver_version: str = '.'.join(installed_version_parts)
     else:
-        print(ColorUtils.info("Fetching compatible Chromedriver version..."))
         response = utils.url_open(
             'https://chromedriver.storage.googleapis.com/LATEST_RELEASE_%s' % (
                 '.'.join(installed_version_parts[:-1])
@@ -578,7 +589,6 @@ def get_chromedriver_version() -> str:
         )
         chromedriver_version = response.read().decode('utf-8')
 
-    print(ColorUtils.success(f"Chromedriver version: {chromedriver_version}"))
     return chromedriver_version
 
 
@@ -604,15 +614,12 @@ def managed_portserver() -> Iterator[psutil.Process]:
     # of the portserver did not close properly. We need to remove as otherwise
     # the portserver will fail to start.
     if os.path.exists(common.PORTSERVER_SOCKET_FILEPATH):
-        print((
-            "Portserver socket file exists. Removing stale file..."))
         os.remove(common.PORTSERVER_SOCKET_FILEPATH)
 
     portserver_args = [
         'python', '-m', 'scripts.run_portserver',
         '--portserver_unix_socket_address', common.PORTSERVER_SOCKET_FILEPATH,
     ]
-    print(ColorUtils.info("Starting Portserver..."))
     # OK to use shell=True here because we are passing string literals and
     # constants, so there is no risk of a shell-injection attack.
     proc_context = managed_process(
@@ -620,18 +627,27 @@ def managed_portserver() -> Iterator[psutil.Process]:
 
     with proc_context as proc:
         try:
-            print(ColorUtils.success("Portserver started successfully."))
             yield proc
         finally:
-            print(ColorUtils.error("Stopping Portserver..."))
+            # Before exiting the proc_context, try to end the process with
+            # SIGINT. The portserver is configured to shut down cleanly upon
+            # receiving this signal.
             try:
                 proc.send_signal(signal.SIGINT)
-                proc.wait(timeout=10)
             except OSError:
-                print(ColorUtils.error("Portserver already shut down."))
-            except psutil.TimeoutExpired:
-                print(ColorUtils.error("Portserver failed to shut down after 10 seconds."))
-
+                # Raises when the process has already shutdown, in which case we
+                # can just return immediately.
+                return  # pylint: disable=lost-exception
+            else:
+                # Otherwise, give the portserver 10 seconds to shut down after
+                # sending CTRL-C (SIGINT).
+                try:
+                    proc.wait(timeout=10)
+                except psutil.TimeoutExpired:
+                    # If the server fails to shut down, allow proc_context to
+                    # end it by calling terminate() and/or kill().
+                    logging.error(
+                        'Portserver failed to shut down after 10 seconds.')
 
 
 @contextlib.contextmanager
@@ -669,8 +685,7 @@ def managed_webdriverio_server(
         ValueError. Number of sharding instances are less than 0.
     """
     if sharding_instances <= 0:
-        raise ValueError(ColorUtils.error('Sharding instance should be larger than 0'))
-
+        raise ValueError('Sharding instance should be larger than 0')
 
     if chrome_version is None:
         chrome_version = get_chromedriver_version()
@@ -700,8 +715,6 @@ def managed_webdriverio_server(
 
     if debug_mode:
         webdriverio_args.insert(0, 'DEBUG=true')
-        
-    print(ColorUtils.info("Starting WebdriverIO Server..."))
 
     # OK to use shell=True here because we are passing string literals and
     # constants, so there is no risk of a shell-injection attack.
@@ -711,11 +724,10 @@ def managed_webdriverio_server(
 
     try:
         with managed_webdriverio_proc as proc:
-            print(ColorUtils.success("WebdriverIO Server started successfully."))
             yield proc
     finally:
-        print(ColorUtils.error("Stopping WebdriverIO Server..."))
         del os.environ['MOBILE']
+
 
 @contextlib.contextmanager
 def managed_acceptance_tests_server(
@@ -745,7 +757,7 @@ def managed_acceptance_tests_server(
             suite names.
     """
     if suite_name not in common.ACCEPTANCE_TESTS_SUITE_NAMES:
-        raise Exception(ColorUtils.error(f'Invalid suite name: {suite_name}'))
+        raise Exception('Invalid suite name: %s' % suite_name)
 
     os.environ['HEADLESS'] = 'true' if headless else 'false'
     os.environ['MOBILE'] = 'true' if mobile else 'false'
@@ -763,7 +775,9 @@ def managed_acceptance_tests_server(
         '--config=./core/tests/puppeteer-acceptance-tests/jest.config.js'
     ]
 
-    print(ColorUtils.info(f"Starting acceptance tests for suite: {suite_name}..."))
+    # OK to use shell=True here because we are passing string literals,
+    # and verifying that the passed suite-name are within the list of
+    # the suites we have, so there is no risk of a shell-injection attack.
     managed_acceptance_tests_proc = managed_process(
         acceptance_tests_args,
         human_readable_name='Acceptance Tests Server',
@@ -773,5 +787,4 @@ def managed_acceptance_tests_server(
     )
 
     with managed_acceptance_tests_proc as proc:
-        print(ColorUtils.success(f"Acceptance tests for suite '{suite_name}' started successfully."))
         yield proc
