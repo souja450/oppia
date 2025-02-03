@@ -19,7 +19,13 @@
 from __future__ import annotations
 
 from core import feconf
+<<<<<<< HEAD
 from core.domain import skill_services
+=======
+from core.domain import exp_services
+from core.domain import skill_services
+from core.domain import story_fetchers
+>>>>>>> upstream/develop
 from core.domain import topic_fetchers
 from core.jobs import base_jobs
 from core.jobs.io import ndb_io
@@ -146,7 +152,11 @@ class GenerateContributorAdminStatsJob(base_jobs.JobBase):
             )
         )
 
+<<<<<<< HEAD
         translation_submitter_total_stats_models = (
+=======
+        translation_submitter_total_stats_models_and_logs = (
+>>>>>>> upstream/develop
             {
                 'translation_contribution_stats':
                     translation_contribution_stats,
@@ -165,6 +175,28 @@ class GenerateContributorAdminStatsJob(base_jobs.JobBase):
                 )
         )
 
+<<<<<<< HEAD
+=======
+        translation_submitter_total_stats_models = (
+            translation_submitter_total_stats_models_and_logs
+            | 'Unpack translation submitter contribution models' >> beam.Map(
+                lambda element: element[0])
+            | 'Filter out translation stats with None values' >> beam.Filter(
+                lambda x: x is not None)
+        )
+
+        translation_submitter_debug_logs = (
+            translation_submitter_total_stats_models_and_logs
+            | 'Filter out translation logs with None values' >> beam.Filter(
+                lambda element: element[1] is not None)
+            | 'Unpack and get translation debug logs result' >> beam.Map(
+                lambda element: (
+                    job_run_result.JobRunResult.as_stdout(element[1])
+                )
+            )
+        )
+
+>>>>>>> upstream/develop
         translation_reviewer_total_stats_models = (
             translation_reviewer_stats
             | 'Group TranslationReviewerTotalContributionStatsModel by key' >>
@@ -194,17 +226,29 @@ class GenerateContributorAdminStatsJob(base_jobs.JobBase):
 
         question_submitter_total_stats_models = (
             question_submitter_total_stats_models_and_logs
+<<<<<<< HEAD
             | 'Unpack contribution models' >> beam.Map(
                 lambda element: element[0])
             | 'Filter out stats with None values' >> beam.Filter(
+=======
+            | 'Unpack question contribution models' >> beam.Map(
+                lambda element: element[0])
+            | 'Filter out question stats with None values' >> beam.Filter(
+>>>>>>> upstream/develop
                 lambda x: x is not None)
         )
 
         question_submitter_debug_logs = (
             question_submitter_total_stats_models_and_logs
+<<<<<<< HEAD
             | 'Filter out logs with None values' >> beam.Filter(
                 lambda element: element[1] is not None)
             | 'Unpack and get debug logs result1' >> beam.Map(
+=======
+            | 'Filter out question logs with None values' >> beam.Filter(
+                lambda element: element[1] is not None)
+            | 'Unpack and get question debug logs result' >> beam.Map(
+>>>>>>> upstream/develop
                 lambda element: (
                     job_run_result.JobRunResult.as_stdout(element[1])
                 )
@@ -282,6 +326,10 @@ class GenerateContributorAdminStatsJob(base_jobs.JobBase):
                 translation_reviewer_models_job_run_results,
                 question_submitter_models_job_run_results,
                 question_reviewer_models_job_run_results,
+<<<<<<< HEAD
+=======
+                translation_submitter_debug_logs,
+>>>>>>> upstream/develop
                 question_submitter_debug_logs
             )
             | 'Merge job run results' >> beam.Flatten()
@@ -293,8 +341,15 @@ class GenerateContributorAdminStatsJob(base_jobs.JobBase):
         translation_contribution_stats:
             Iterable[suggestion_models.TranslationContributionStatsModel],
         translation_general_suggestions_stats:
+<<<<<<< HEAD
             Iterable[suggestion_models.GeneralSuggestionModel]) -> (
         suggestion_models.TranslationSubmitterTotalContributionStatsModel):
+=======
+            Iterable[suggestion_models.GeneralSuggestionModel]) -> Tuple[
+        Optional[
+            suggestion_models.TranslationSubmitterTotalContributionStatsModel],
+        Optional[str]]:
+>>>>>>> upstream/develop
         """Transforms TranslationContributionStatsModel and
         GeneralSuggestionModel to
         TranslationSubmitterTotalContributionStatsModel.
@@ -312,8 +367,16 @@ class GenerateContributorAdminStatsJob(base_jobs.JobBase):
                 (language_code, author_id).
 
         Returns:
+<<<<<<< HEAD
             suggestion_models.TranslationSubmitterTotalContributionStatsModel.
             New TranslationReviewerTotalContributionStatsModel model.
+=======
+            A 2-tuple with the following elements:
+            - suggestion_models.TranslationSubmitterTotalContributionStatsModel.
+            New TranslationReviewerTotalContributionStatsModel model, if
+            possible.
+            - The debug logs, if error detected.
+>>>>>>> upstream/develop
         """
         # The key for sorting is defined separately because of a mypy bug.
         # A [no-any-return] is thrown if key is defined in the sort() method
@@ -362,11 +425,35 @@ class GenerateContributorAdminStatsJob(base_jobs.JobBase):
             '%s.%s' % (language_code, contributor_user_id)
         )
 
+<<<<<<< HEAD
+=======
+        exp_ids_with_translation_suggestions = sorted(
+            {v.target_id for v in general_suggestion_stats})
+
+        topic_ids_with_translation_submissions_list = []
+        with datastore_services.get_ndb_context():
+            for exp_id in exp_ids_with_translation_suggestions:
+                story_id = exp_services.get_story_id_linked_to_exploration(
+                    exp_id)
+                if story_id is not None:
+                    story = story_fetchers.get_story_by_id(story_id)
+                    if story is not None:
+                        topic_ids_with_translation_submissions_list.append(
+                            story.corresponding_topic_id)
+
+        topic_ids_with_translation_submissions = sorted(
+            set(topic_ids_with_translation_submissions_list))
+
+        topic_ids_with_contribution_stats = sorted(
+            {v.topic_id for v in translation_contribution_stats})
+
+>>>>>>> upstream/develop
         for stat in translation_contribution_stats:
             if GenerateContributorAdminStatsJob.not_validate_topic(
                 stat.topic_id):
                 translation_contribution_stats.remove(stat)
 
+<<<<<<< HEAD
         topic_ids = (
             [v.topic_id for v in translation_contribution_stats])
         submitted_translations_count = sum(
@@ -428,6 +515,118 @@ class GenerateContributorAdminStatsJob(base_jobs.JobBase):
             )
             translation_submit_stats_models.update_timestamps()
             return translation_submit_stats_models
+=======
+        valid_topic_ids_with_contribution_stats = sorted(
+            {v.topic_id for v in translation_contribution_stats})
+
+        # We only generate total contribution stats model if there exists a
+        # valid contribution stats model for each pair of language code and
+        # topic id, a contributor submitted a translation suggestion to.
+        # Otherwise we return the debugging logs.
+        if topic_ids_with_translation_submissions != (
+            valid_topic_ids_with_contribution_stats):
+
+            # Collects all the debug logs.
+            debug_logs = (
+                'Translation submitter ID: %s, Language code: %s\n' % (
+                    contributor_user_id, language_code))
+
+            debug_logs += (
+                'Unique exp IDs with translation suggestion: \n')
+
+            with datastore_services.get_ndb_context():
+                for exp_id in exp_ids_with_translation_suggestions:
+                    debug_logs += (
+                        '- %s\n' % exp_id)
+                    story_id = exp_services.get_story_id_linked_to_exploration(
+                        exp_id)
+                    if story_id is not None:
+                        debug_logs += (
+                            '-- Story ID: %s\n' % story_id)
+                        story = story_fetchers.get_story_by_id(story_id)
+                        if story is not None:
+                            debug_logs += (
+                                '---- Topic ID: %s\n' % (
+                                    story.corresponding_topic_id))
+
+            debug_logs += (
+                'Unique topic IDs with contribution stats: \n')
+            for topic_id in topic_ids_with_contribution_stats:
+                debug_logs += (
+                    '- %s\n' % topic_id)
+
+            debug_logs += (
+                'Unique valid topic IDs with contribution stats: \n')
+            for topic_id in valid_topic_ids_with_contribution_stats:
+                debug_logs += (
+                    '- %s\n' % topic_id)
+            return (None, debug_logs)
+
+        else:
+            topic_ids = (
+                [v.topic_id for v in translation_contribution_stats])
+            submitted_translations_count = sum(
+                v.submitted_translations_count
+                    for v in translation_contribution_stats)
+            submitted_translation_word_count = sum(
+                v.submitted_translation_word_count
+                    for v in translation_contribution_stats)
+            accepted_translations_count = sum(
+                v.accepted_translations_count
+                    for v in translation_contribution_stats)
+            accepted_translations_without_reviewer_edits_count = sum(
+                v.accepted_translations_without_reviewer_edits_count
+                    for v in translation_contribution_stats)
+            accepted_translation_word_count = sum(
+                v.accepted_translation_word_count
+                    for v in translation_contribution_stats)
+            rejected_translations_count = sum(
+                v.rejected_translations_count
+                    for v in translation_contribution_stats)
+            rejected_translation_word_count = sum(
+                v.rejected_translation_word_count
+                    for v in translation_contribution_stats)
+            first_contribution_date = min(
+                v.contribution_dates[0] for v in translation_contribution_stats)
+            last_contribution_date = max(
+                v.contribution_dates[-1] for v in (
+                    translation_contribution_stats))
+
+            # Weights of overall_accuracy as documented in
+            # https://docs.google.com/document/d/19lCEYQUgV7_DwIK_0rz3zslRHX2qKOHn-t9Twpi0qu0/edit.
+            overall_accuracy = round(
+                (accepted_translations_count / submitted_translations_count) * (
+                    100), 2
+            )
+
+            with datastore_services.get_ndb_context():
+                translation_submit_stats_models = (
+                    suggestion_models.TranslationSubmitterTotalContributionStatsModel( # pylint: disable=line-too-long
+                    id=entity_id,
+                    language_code=language_code,
+                    contributor_id=contributor_user_id,
+                    topic_ids_with_translation_submissions=topic_ids,
+                    recent_review_outcomes=recent_review_outcomes,
+                    recent_performance=recent_performance,
+                    overall_accuracy=overall_accuracy,
+                    submitted_translations_count=submitted_translations_count,
+                    submitted_translation_word_count=(
+                        submitted_translation_word_count),
+                    accepted_translations_count=accepted_translations_count,
+                    accepted_translations_without_reviewer_edits_count=(
+                        accepted_translations_without_reviewer_edits_count),
+                    accepted_translation_word_count=(
+                        accepted_translation_word_count),
+                    rejected_translations_count=rejected_translations_count,
+                    rejected_translation_word_count=(
+                        rejected_translation_word_count),
+                    first_contribution_date=first_contribution_date,
+                    last_contribution_date=last_contribution_date
+                    )
+                )
+                translation_submit_stats_models.update_timestamps()
+                return (translation_submit_stats_models, None)
+>>>>>>> upstream/develop
 
     @staticmethod
     def transform_translation_review_stats(
@@ -533,7 +732,11 @@ class GenerateContributorAdminStatsJob(base_jobs.JobBase):
             A 2-tuple with the following elements:
             - suggestion_models.QuestionSubmitterTotalContributionStatsModel.
             New QuestionSubmitterTotalContributionStatsModel model, if
+<<<<<<< HEAD
             Possible.
+=======
+            possible.
+>>>>>>> upstream/develop
             - The debug logs, if error detected.
         """
         # The key for sorting is defined separately because of a mypy bug.
@@ -584,8 +787,13 @@ class GenerateContributorAdminStatsJob(base_jobs.JobBase):
 
         by_topic_id = lambda m: m.topic_id
 
+<<<<<<< HEAD
         skill_ids_with_question_suggestions = set(
             sorted([v.target_id for v in general_suggestion_stats]))
+=======
+        skill_ids_with_question_suggestions = sorted(
+            {v.target_id for v in general_suggestion_stats})
+>>>>>>> upstream/develop
 
         topic_ids_with_question_submissions_list = []
         with datastore_services.get_ndb_context():
@@ -597,19 +805,32 @@ class GenerateContributorAdminStatsJob(base_jobs.JobBase):
                     topic_ids_with_question_submissions_list.append(
                         topic_assignment.topic_id)
 
+<<<<<<< HEAD
         topic_ids_with_question_submissions = set(
             sorted(topic_ids_with_question_submissions_list))
 
         topic_ids_with_contribution_stats = set(
             sorted([v.topic_id for v in question_contribution_stats]))
+=======
+        topic_ids_with_question_submissions = sorted(
+            set(topic_ids_with_question_submissions_list))
+
+        topic_ids_with_contribution_stats = sorted(
+            {v.topic_id for v in question_contribution_stats})
+>>>>>>> upstream/develop
 
         for stat in question_contribution_stats:
             if GenerateContributorAdminStatsJob.not_validate_topic(
                 stat.topic_id):
                 question_contribution_stats.remove(stat)
 
+<<<<<<< HEAD
         valid_topic_ids_with_contribution_stats = set(
             sorted([v.topic_id for v in question_contribution_stats]))
+=======
+        valid_topic_ids_with_contribution_stats = sorted(
+            {v.topic_id for v in question_contribution_stats})
+>>>>>>> upstream/develop
 
         # We only generate total contribution stats model if there exists a
         # valid contribution stats model for each topic id, a contributor

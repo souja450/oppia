@@ -333,6 +333,16 @@ URLS = [
     ),
 
     get_redirect_route(
+<<<<<<< HEAD
+=======
+        r'%s/can_access_practice_session_page/<classroom_url_fragment>'
+        r'/<topic_url_fragment>/practice/session' %
+        feconf.ACCESS_VALIDATION_HANDLER_PREFIX,
+        access_validators.PracticeSessionAccessValidationPage
+    ),
+
+    get_redirect_route(
+>>>>>>> upstream/develop
         r'%s/can_access_topic_viewer_page/<classroom_url_fragment>'
         r'/<topic_url_fragment>' %
         feconf.ACCESS_VALIDATION_HANDLER_PREFIX,
@@ -474,9 +484,12 @@ URLS = [
         r'%s/<comma_separated_skill_ids>' % feconf.QUESTION_COUNT_URL_PREFIX,
         questions_list.QuestionCountDataHandler),
     get_redirect_route(
+<<<<<<< HEAD
         r'%s/practice/session' % feconf.TOPIC_VIEWER_URL_PREFIX,
         practice_sessions.PracticeSessionsPage),
     get_redirect_route(
+=======
+>>>>>>> upstream/develop
         r'%s/<classroom_url_fragment>/<topic_url_fragment>' %
         feconf.PRACTICE_SESSION_DATA_URL_PREFIX,
         practice_sessions.PracticeSessionsPageDataHandler),
@@ -1238,6 +1251,16 @@ URLS.extend((
         oppia_root.OppiaRootPage
     ),
     get_redirect_route(
+<<<<<<< HEAD
+=======
+        r'%s%s' % (
+            feconf.TOPIC_VIEWER_URL_PREFIX,
+            feconf.PRACTICE_SESSION_URL_PREFIX,
+        ),
+        oppia_root.OppiaRootPage
+    ),
+    get_redirect_route(
+>>>>>>> upstream/develop
         r'%s/story' % feconf.TOPIC_VIEWER_URL_PREFIX,
         oppia_root.OppiaRootPage
     ),

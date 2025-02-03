@@ -13,12 +13,7 @@
 // limitations under the License.
 
 /**
-<<<<<<< HEAD
- * @fileoverview Guard that redirects user to 401 error page
- * if the user is not a valid facilitator.
-=======
- * @fileoverview Auth Guard for the topic viewer page.
->>>>>>> upstream/develop
+ * @fileoverview Auth Guard for the practice session page.
  */
 import {Location} from '@angular/common';
 import {Injectable} from '@angular/core';
@@ -35,7 +30,7 @@ import {AccessValidationBackendApiService} from 'pages/oppia-root/routing/access
 @Injectable({
   providedIn: 'root',
 })
-export class TopicViewerAccessGuard implements CanActivate {
+export class PracticeSessionAccessGuard implements CanActivate {
   constructor(
     private accessValidationBackendApiService: AccessValidationBackendApiService,
     private router: Router,
@@ -46,19 +41,24 @@ export class TopicViewerAccessGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Promise<boolean> {
-    let classroomUrlFragment =
+    const selectedSubtopicIds = route.queryParams.selected_subtopic_ids;
+    const classroomUrlFragment =
       route.paramMap.get('classroom_url_fragment') || '';
-    let topicUrlFragment = route.paramMap.get('topic_url_fragment') || '';
+    const topicUrlFragment = route.paramMap.get('topic_url_fragment') || '';
     return new Promise<boolean>(resolve => {
       this.accessValidationBackendApiService
-        .validateAccessToTopicViewerPage(classroomUrlFragment, topicUrlFragment)
+        .validateAccessToPracticeSessionPage(
+          classroomUrlFragment,
+          topicUrlFragment,
+          selectedSubtopicIds
+        )
         .then(() => {
           resolve(true);
         })
         .catch(err => {
           this.router
             .navigate([
-              `${AppConstants.PAGES_REGISTERED_WITH_FRONTEND.ERROR.ROUTE}/404`,
+              `${AppConstants.PAGES_REGISTERED_WITH_FRONTEND.ERROR.ROUTE}/${err.status}`,
             ])
             .then(() => {
               this.location.replaceState(state.url);

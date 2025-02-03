@@ -92,6 +92,10 @@ class AssetDevHandlerImageTests(test_utils.GenericTestBase):
         self.logout()
 
     def test_image_upload_with_invalid_filename_raises_error(self) -> None:
+<<<<<<< HEAD
+=======
+        """Test that filenames starting with dot are rejected."""
+>>>>>>> upstream/develop
         self.login(self.EDITOR_EMAIL)
         csrf_token = self.get_new_csrf_token()
 
@@ -104,15 +108,28 @@ class AssetDevHandlerImageTests(test_utils.GenericTestBase):
             '%s/exploration/0' % feconf.EXPLORATION_IMAGE_UPLOAD_PREFIX,
             {'filename': '.png'},
             csrf_token=csrf_token,
+<<<<<<< HEAD
             upload_files=[('image', 'unused_filename', raw_image)],
             expected_status_int=400)
+=======
+            expected_status_int=400,
+            upload_files=[('image', 'unused_filename', raw_image)]
+        )
+>>>>>>> upstream/develop
 
         error_msg = (
             'At \'http://localhost/createhandler/imageupload/exploration/0\' '
             'these errors are happening:\n'
+<<<<<<< HEAD
             'Schema validation for \'filename\' failed: Validation'
             ' failed: is_regex_matched ({\'regex_pattern\': '
             '\'\\\\w+[.]\\\\w+\'}) for object .png'
+=======
+            'Schema validation for \'filename\' failed: Validation failed: '
+            'is_regex_matched ({\'regex_pattern\': '
+            '\'^[a-zA-Z0-9\\\\-_]+\\\\.(jpg|jpeg|png|gif|svg)$\'}'
+            ') for object .png'
+>>>>>>> upstream/develop
         )
         self.assertEqual(response_dict['error'], error_msg)
 
@@ -368,6 +385,7 @@ class AssetDevHandlerImageTests(test_utils.GenericTestBase):
 
     def test_upload_an_invalid_svg_image(self) -> None:
         """Test upload of an invalid SVG image."""
+<<<<<<< HEAD
 
         self.login(self.EDITOR_EMAIL)
         csrf_token = self.get_new_csrf_token()
@@ -422,10 +440,13 @@ class AssetDevHandlerImageTests(test_utils.GenericTestBase):
 
     def test_bad_filenames_are_detected(self) -> None:
         # TODO(sll): Add more tests here.
+=======
+>>>>>>> upstream/develop
 
         self.login(self.EDITOR_EMAIL)
         csrf_token = self.get_new_csrf_token()
 
+<<<<<<< HEAD
         with utils.open_file(
             os.path.join(feconf.TESTS_DATA_DIR, 'img.png'),
             'rb', encoding=None
@@ -449,6 +470,89 @@ class AssetDevHandlerImageTests(test_utils.GenericTestBase):
         self.logout()
 
     def test_missing_extensions_are_detected(self) -> None:
+=======
+        # Upload an invalid SVG image.
+        response_dict = self.post_json(
+            '%s/exploration/0' % feconf.EXPLORATION_IMAGE_UPLOAD_PREFIX,
+            {'filename': 'test.svg'},
+            csrf_token=csrf_token,
+            expected_status_int=400,
+            upload_files=[('image', 'unused_filename', b'<badsvg></badsvg>')]
+        )
+        self.assertEqual(response_dict['status_code'], 400)
+        self.assertEqual(
+            response_dict['error'],
+            'Unsupported tags/attributes found in the SVG:\ntags: '
+            '[\'badsvg\']\n')
+
+        self.logout()
+
+    def test_upload_a_large_svg(self) -> None:
+        """Test upload of an SVG image that exceeds the 100 KB size limit."""
+
+        self.login(self.EDITOR_EMAIL)
+        csrf_token = self.get_new_csrf_token()
+
+        # Upload an SVG image that exceeds the file size limit of 100 KB.
+        response_dict = self.post_json(
+            '%s/exploration/0' % feconf.EXPLORATION_IMAGE_UPLOAD_PREFIX,
+            {'filename': 'test.svg'},
+            csrf_token=csrf_token,
+            expected_status_int=400,
+            upload_files=[(
+                'image',
+                'unused_filename',
+                b'<svg><path d="%s" /></svg>' % (
+                    b'M150 0 L75 200 L225 200 Z ' * 4000))]
+        )
+        self.assertEqual(response_dict['status_code'], 400)
+        self.assertEqual(
+            response_dict['error'], 'Image exceeds file size limit of 100 KB.')
+
+        self.logout()
+
+    def test_get_invalid_image(self) -> None:
+        """Test retrieval of invalid images."""
+
+        self.get_json(
+            self._get_image_url('exploration', '0', 'bad_image'),
+            expected_status_int=400
+        )
+
+    def test_bad_filenames_are_detected(self) -> None:
+        """Test that filenames with invalid characters are rejected."""
+        self.login(self.EDITOR_EMAIL)
+        csrf_token = self.get_new_csrf_token()
+
+        with utils.open_file(
+            os.path.join(feconf.TESTS_DATA_DIR, 'img.png'),
+            'rb', encoding=None
+        ) as f:
+            raw_image = f.read()
+        response_dict = self.post_json(
+            '%s/exploration/0' % feconf.EXPLORATION_IMAGE_UPLOAD_PREFIX,
+            {'filename': 'test/a.png'},
+            csrf_token=csrf_token,
+            expected_status_int=400,
+            upload_files=[('image', 'unused_filename', raw_image)],
+        )
+        self.assertEqual(response_dict['status_code'], 400)
+
+        error_msg = (
+            'At \'http://localhost/createhandler/imageupload/exploration/0\' '
+            'these errors are happening:\n'
+            'Schema validation for \'filename\' failed: Validation failed: '
+            'is_regex_matched ({\'regex_pattern\': '
+            '\'^[a-zA-Z0-9\\\\-_]+\\\\.(jpg|jpeg|png|gif|svg)$\'}'
+            ') for object test/a.png'
+        )
+        self.assertEqual(response_dict['error'], error_msg)
+
+        self.logout()
+
+    def test_missing_extensions_are_detected(self) -> None:
+        """Test that filenames without extensions are rejected."""
+>>>>>>> upstream/develop
         self.login(self.EDITOR_EMAIL)
         csrf_token = self.get_new_csrf_token()
         with utils.open_file(
@@ -469,13 +573,24 @@ class AssetDevHandlerImageTests(test_utils.GenericTestBase):
             'At \'http://localhost/createhandler/imageupload/exploration/0\' '
             'these errors are happening:\n'
             'Schema validation for \'filename\' failed: Validation failed: '
+<<<<<<< HEAD
             'is_regex_matched ({\'regex_pattern\': \'\\\\w+[.]\\\\w+\'}) '
             'for object test')
+=======
+            'is_regex_matched ({\'regex_pattern\': '
+            '\'^[a-zA-Z0-9\\\\-_]+\\\\.(jpg|jpeg|png|gif|svg)$\'}'
+            ') for object test'
+        )
+>>>>>>> upstream/develop
         self.assertEqual(error_msg, response_dict['error'])
 
         self.logout()
 
     def test_bad_extensions_are_detected(self) -> None:
+<<<<<<< HEAD
+=======
+        """Test that invalid file extensions are rejected."""
+>>>>>>> upstream/develop
         self.login(self.EDITOR_EMAIL)
         csrf_token = self.get_new_csrf_token()
 
@@ -492,9 +607,22 @@ class AssetDevHandlerImageTests(test_utils.GenericTestBase):
             upload_files=[('image', 'unused_filename', raw_image)],
         )
         self.assertEqual(response_dict['status_code'], 400)
+<<<<<<< HEAD
         self.assertIn(
             'Expected a filename ending in .png, received test.pdf',
             response_dict['error'])
+=======
+
+        error_msg = (
+            'At \'http://localhost/createhandler/imageupload/exploration/0\' '
+            'these errors are happening:\n'
+            'Schema validation for \'filename\' failed: Validation failed: '
+            'is_regex_matched ({\'regex_pattern\': '
+            '\'^[a-zA-Z0-9\\\\-_]+\\\\.(jpg|jpeg|png|gif|svg)$\'}'
+            ') for object test.pdf'
+        )
+        self.assertEqual(response_dict['error'], error_msg)
+>>>>>>> upstream/develop
 
         self.logout()
 

@@ -73,6 +73,7 @@ class BasePracticeSessionsControllerTests(test_utils.GenericTestBase):
         topic_services.publish_topic(self.topic_id, self.admin_id)
 
 
+<<<<<<< HEAD
 class PracticeSessionsPageTests(BasePracticeSessionsControllerTests):
 
     def test_any_user_can_access_practice_sessions_page(self) -> None:
@@ -95,6 +96,8 @@ class PracticeSessionsPageTests(BasePracticeSessionsControllerTests):
             expected_status_int=302)
 
 
+=======
+>>>>>>> upstream/develop
 class PracticeSessionsPageDataHandlerTests(BasePracticeSessionsControllerTests):
 
     def test_get_fails_when_skill_ids_dont_exist(self) -> None:

@@ -26,6 +26,7 @@ from core.domain import topic_fetchers
 from typing import Dict, List, TypedDict
 
 
+<<<<<<< HEAD
 class PracticeSessionsPage(
     base.BaseHandler[Dict[str, str], Dict[str, str]]
 ):
@@ -79,6 +80,8 @@ class PracticeSessionsPage(
         super().handle_exception(exception, unused_debug_mode)
 
 
+=======
+>>>>>>> upstream/develop
 class PracticeSessionsPageDataHandlerNormalizedRequestDict(TypedDict):
     """Dict representation of PracticeSessionsPageDataHandler's
     normalized_request dictionary.
