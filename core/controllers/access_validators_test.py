@@ -22,16 +22,11 @@ from core import feature_flag_list
 from core import feconf
 from core.constants import constants
 from core.domain import caching_services
-<<<<<<< HEAD
-from core.domain import exp_domain
-from core.domain import exp_services
-=======
 from core.domain import classroom_config_domain
 from core.domain import classroom_config_services
 from core.domain import exp_domain
 from core.domain import exp_services
 from core.domain import fs_services
->>>>>>> upstream/develop
 from core.domain import learner_group_fetchers
 from core.domain import learner_group_services
 from core.domain import rights_manager
@@ -48,11 +43,7 @@ from core.platform import models
 from core.storage.blog import gae_models as blog_models
 from core.tests import test_utils
 
-<<<<<<< HEAD
-from typing import Final
-=======
 from typing import Dict, Final
->>>>>>> upstream/develop
 
 MYPY = False
 if MYPY:  # pragma: no cover
@@ -104,8 +95,6 @@ class ClassroomPageAccessValidationHandlerTests(test_utils.GenericTestBase):
             (ACCESS_VALIDATION_HANDLER_PREFIX, 'history'))
 
 
-<<<<<<< HEAD
-=======
 class PracticeSessionAccessValidationPageTests(test_utils.GenericTestBase):
 
     def setUp(self) -> None:
@@ -262,7 +251,6 @@ class PracticeSessionAccessValidationPageTests(test_utils.GenericTestBase):
             expected_status_int=302)
 
 
->>>>>>> upstream/develop
 class ClassroomsPageAccessValidationHandlerTests(test_utils.GenericTestBase):
 
     def test_validation_returns_false_if_no_public_classrooms_are_present(

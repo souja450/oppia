@@ -230,8 +230,6 @@ class ManageOwnAccountValidationHandler(
         pass
 
 
-<<<<<<< HEAD
-=======
 class PracticeSessionAccessValidationPage(
     base.BaseHandler[Dict[str, str], Dict[str, str]]
 ):
@@ -277,7 +275,6 @@ class PracticeSessionAccessValidationPage(
                 raise self.NotFoundException
 
 
->>>>>>> upstream/develop
 class ProfileExistsValidationHandler(
     base.BaseHandler[Dict[str, str], Dict[str, str]]
 ):

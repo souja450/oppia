@@ -1439,8 +1439,6 @@ def unescape_html(escaped_html_data: str) -> str:
             replace_tuple[0], replace_tuple[1])
 
     return unescaped_html_data
-<<<<<<< HEAD
-=======
 
 
 def get_image_filename_regex_pattern() -> str:
@@ -1452,4 +1450,3 @@ def get_image_filename_regex_pattern() -> str:
         extensions.extend(exts)
     extension_pattern = '|'.join(extensions)
     return r'^[a-zA-Z0-9\-_]+\.(%s)$' % extension_pattern
->>>>>>> upstream/develop

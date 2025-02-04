@@ -77,3 +77,8 @@ firebase-debug.log
 debug.log
 # development logs and status entries
 .dev
+Docker.dmg
+temp_env/
+your/
+temp_env_backup/
+your_backup/

@@ -23,10 +23,7 @@ import datetime
 from core import feconf
 from core.domain import change_domain
 from core.domain import skill_domain
-<<<<<<< HEAD
-=======
 from core.domain import state_domain
->>>>>>> upstream/develop
 from core.domain import topic_domain
 from core.domain import topic_services
 from core.jobs import job_test_utils
@@ -38,12 +35,6 @@ from typing import Final, Mapping, Type
 
 MYPY = False
 if MYPY: # pragma: no cover
-<<<<<<< HEAD
-    from mypy_imports import suggestion_models
-    from mypy_imports import topic_models
-
-(suggestion_models, topic_models) = models.Registry.import_models([
-=======
     from mypy_imports import exp_models
     from mypy_imports import story_models
     from mypy_imports import suggestion_models
@@ -56,7 +47,6 @@ if MYPY: # pragma: no cover
     topic_models) = models.Registry.import_models([
     models.Names.EXPLORATION,
     models.Names.STORY,
->>>>>>> upstream/develop
     models.Names.SUGGESTION,
     models.Names.TOPIC
 ])
@@ -96,11 +86,8 @@ class ContributorDashboardTest(job_test_utils.JobTestBase):
     topic_name = 'topic'
     target_id = 'exp1'
     target_id_2 = 'exp2'
-<<<<<<< HEAD
-=======
     target_id_3 = 'exp3'
     target_id_4 = 'exp4'
->>>>>>> upstream/develop
     target_version_at_submission = 1
     change_cmd: Mapping[
         str, change_domain.AcceptableChangeDictTypes
@@ -244,8 +231,6 @@ class ContributorDashboardTest(job_test_utils.JobTestBase):
             contribution_dates=self.CONTRIBUTION_DATES
         )
 
-<<<<<<< HEAD
-=======
         self.translation_contribution_model_6 = self.create_model(
             suggestion_models.TranslationContributionStatsModel,
             language_code='hi',
@@ -265,7 +250,6 @@ class ContributorDashboardTest(job_test_utils.JobTestBase):
             contribution_dates=self.CONTRIBUTION_DATES
         )
 
->>>>>>> upstream/develop
         self.translation_review_model_1 = self.create_model(
             suggestion_models.TranslationReviewStatsModel,
             language_code=self.LANGUAGE_CODE,
@@ -608,11 +592,7 @@ class ContributorDashboardTest(job_test_utils.JobTestBase):
             suggestion_models.GeneralSuggestionModel,
             suggestion_type=feconf.SUGGESTION_TYPE_TRANSLATE_CONTENT,
             target_type=feconf.ENTITY_TYPE_EXPLORATION,
-<<<<<<< HEAD
-            target_id=self.target_id,
-=======
             target_id=self.target_id_2,
->>>>>>> upstream/develop
             target_version_at_submission=self.target_version_at_submission,
             status=suggestion_models.STATUS_ACCEPTED,
             author_id='user1',
@@ -627,11 +607,7 @@ class ContributorDashboardTest(job_test_utils.JobTestBase):
             suggestion_models.GeneralSuggestionModel,
             suggestion_type=feconf.SUGGESTION_TYPE_TRANSLATE_CONTENT,
             target_type=feconf.ENTITY_TYPE_EXPLORATION,
-<<<<<<< HEAD
-            target_id=self.target_id,
-=======
             target_id=self.target_id_3,
->>>>>>> upstream/develop
             target_version_at_submission=self.target_version_at_submission,
             status=suggestion_models.STATUS_ACCEPTED,
             author_id='user1',
@@ -657,8 +633,6 @@ class ContributorDashboardTest(job_test_utils.JobTestBase):
             edited_by_reviewer=False,
             created_on=datetime.datetime(2023, 2, 2))
 
-<<<<<<< HEAD
-=======
         self.translation_suggestion_in_review_model_user3 = self.create_model(
             suggestion_models.GeneralSuggestionModel,
             suggestion_type=feconf.SUGGESTION_TYPE_TRANSLATE_CONTENT,
@@ -812,7 +786,6 @@ class ContributorDashboardTest(job_test_utils.JobTestBase):
             story_id='story4'
         )
 
->>>>>>> upstream/develop
         self.topic_model_1 = self.create_model(
             topic_models.TopicModel,
             id='topic1',
@@ -888,8 +861,6 @@ class ContributorDashboardTest(job_test_utils.JobTestBase):
             page_title_fragment_for_web='fragmmmm',
         )
 
-<<<<<<< HEAD
-=======
         self.story_1 = self.create_model(
             story_models.StoryModel,
             id='story1',
@@ -990,7 +961,6 @@ class ContributorDashboardTest(job_test_utils.JobTestBase):
             },
             notes='note')
 
->>>>>>> upstream/develop
         topic = topic_domain.Topic.create_default_topic(
             'topic1', 'name1', 'name-a', 'description', 'fragm')
         topic_services.save_new_topic(feconf.SYSTEM_COMMITTER_ID, topic)
@@ -1057,16 +1027,11 @@ class GenerateContributorAdminStatsJobTests(ContributorDashboardTest):
         self.translation_suggestion_accepted_with_edits_model.update_timestamps() # pylint: disable=line-too-long
         self.translation_suggestion_accepted_model.update_timestamps()
         self.translation_suggestion_in_review_model.update_timestamps()
-<<<<<<< HEAD
-=======
         self.translation_suggestion_in_review_model_user3.update_timestamps()
->>>>>>> upstream/develop
         self.topic_model_1.update_timestamps()
         self.topic_model_2.update_timestamps()
         self.topic_model_3.update_timestamps()
         self.topic_model_4.update_timestamps()
-<<<<<<< HEAD
-=======
         self.exp_1.update_timestamps()
         self.exp_2.update_timestamps()
         self.exp_3.update_timestamps()
@@ -1079,7 +1044,6 @@ class GenerateContributorAdminStatsJobTests(ContributorDashboardTest):
         self.exp_context_2.update_timestamps()
         self.exp_context_3.update_timestamps()
         self.exp_context_4.update_timestamps()
->>>>>>> upstream/develop
 
         self.put_multi([
             self.translation_contribution_model_1,
@@ -1114,12 +1078,6 @@ class GenerateContributorAdminStatsJobTests(ContributorDashboardTest):
             self.translation_suggestion_accepted_with_edits_model,
             self.translation_suggestion_accepted_model,
             self.translation_suggestion_in_review_model,
-<<<<<<< HEAD
-            self.topic_model_1,
-            self.topic_model_2,
-            self.topic_model_3,
-            self.topic_model_4
-=======
             self.translation_suggestion_in_review_model_user3,
             self.topic_model_1,
             self.topic_model_2,
@@ -1137,7 +1095,6 @@ class GenerateContributorAdminStatsJobTests(ContributorDashboardTest):
             self.exp_context_2,
             self.exp_context_3,
             self.exp_context_4
->>>>>>> upstream/develop
         ])
 
         self.assert_job_output_is([
@@ -1432,11 +1389,7 @@ class GenerateContributorAdminStatsJobTests(ContributorDashboardTest):
                 id=i + 130,
                 suggestion_type=feconf.SUGGESTION_TYPE_TRANSLATE_CONTENT,
                 target_type=feconf.ENTITY_TYPE_EXPLORATION,
-<<<<<<< HEAD
-                target_id=self.target_id,
-=======
                 target_id=self.target_id_2,
->>>>>>> upstream/develop
                 target_version_at_submission=self.target_version_at_submission,
                 status=suggestion_models.STATUS_ACCEPTED,
                 author_id='user1',
@@ -1450,11 +1403,7 @@ class GenerateContributorAdminStatsJobTests(ContributorDashboardTest):
                 id=i + 130,
                 suggestion_type=feconf.SUGGESTION_TYPE_TRANSLATE_CONTENT,
                 target_type=feconf.ENTITY_TYPE_EXPLORATION,
-<<<<<<< HEAD
-                target_id=self.target_id,
-=======
                 target_id=self.target_id_2,
->>>>>>> upstream/develop
                 target_version_at_submission=self.target_version_at_submission,
                 status=suggestion_models.STATUS_REJECTED,
                 author_id='user1',
@@ -1468,11 +1417,7 @@ class GenerateContributorAdminStatsJobTests(ContributorDashboardTest):
                 id=i + 130,
                 suggestion_type=feconf.SUGGESTION_TYPE_TRANSLATE_CONTENT,
                 target_type=feconf.ENTITY_TYPE_EXPLORATION,
-<<<<<<< HEAD
-                target_id=self.target_id,
-=======
                 target_id=self.target_id_2,
->>>>>>> upstream/develop
                 target_version_at_submission=self.target_version_at_submission,
                 status=suggestion_models.STATUS_ACCEPTED,
                 author_id='user1',
@@ -1486,11 +1431,7 @@ class GenerateContributorAdminStatsJobTests(ContributorDashboardTest):
                 id=i + 130,
                 suggestion_type=feconf.SUGGESTION_TYPE_TRANSLATE_CONTENT,
                 target_type=feconf.ENTITY_TYPE_EXPLORATION,
-<<<<<<< HEAD
-                target_id=self.target_id,
-=======
                 target_id=self.target_id_2,
->>>>>>> upstream/develop
                 target_version_at_submission=self.target_version_at_submission,
                 status=suggestion_models.STATUS_IN_REVIEW,
                 author_id='user1',
@@ -1501,9 +1442,6 @@ class GenerateContributorAdminStatsJobTests(ContributorDashboardTest):
                 edited_by_reviewer=False).put()
 
         self.topic_model_1.update_timestamps()
-<<<<<<< HEAD
-        self.put_multi([self.topic_model_1])
-=======
         self.exp_2.update_timestamps()
         self.story_2.update_timestamps()
         self.exp_context_2.update_timestamps()
@@ -1512,7 +1450,6 @@ class GenerateContributorAdminStatsJobTests(ContributorDashboardTest):
             self.exp_2,
             self.story_2,
             self.exp_context_2])
->>>>>>> upstream/develop
         self.translation_contribution_model_1.update_timestamps()
         self.translation_contribution_model_1.put()
         self.question_contribution_model_1.update_timestamps()
@@ -1543,11 +1480,7 @@ class GenerateContributorAdminStatsJobTests(ContributorDashboardTest):
 
         self.assertEqual(100, len(question_model.recent_review_outcomes))
 
-<<<<<<< HEAD
-    def test_job_does_not_creates_stats_if_contribution_stats_model_does_not_exist_for_a_suggestion(self) -> None: # pylint: disable=line-too-long
-=======
     def test_job_does_not_creates_stats_if_contribution_stats_model_does_not_exist_for_a_question_suggestion(self) -> None: # pylint: disable=line-too-long
->>>>>>> upstream/develop
         self.question_contribution_model_1.update_timestamps()
         self.question_contribution_model_2.update_timestamps()
         self.question_contribution_model_5.update_timestamps()
@@ -1581,11 +1514,7 @@ class GenerateContributorAdminStatsJobTests(ContributorDashboardTest):
                     'with question suggestion: \n- exp1\n-- Topic ID: topic1\n'
                     '-- Topic ID: topic2\nUnique topic IDs with contribution '
                     'stats: \n- topic1\nUnique valid topic IDs with '
-<<<<<<< HEAD
-                    'contribution stats: \n- topic1\n')),
-=======
                     'contribution stats: \n- topic1\n'))
->>>>>>> upstream/develop
         ])
 
         # Check for QuestionSubmitterTotalContributionStatsModel.
@@ -1611,8 +1540,6 @@ class GenerateContributorAdminStatsJobTests(ContributorDashboardTest):
             question_submitter_total_stats.recent_review_outcomes
         )
 
-<<<<<<< HEAD
-=======
     def test_job_does_not_creates_stats_if_contribution_stats_model_does_not_exist_for_a_translation_suggestion(self) -> None: # pylint: disable=line-too-long
         self.translation_contribution_model_1.update_timestamps()
         self.translation_contribution_model_2.update_timestamps()
@@ -1698,7 +1625,6 @@ class GenerateContributorAdminStatsJobTests(ContributorDashboardTest):
             translation_submitter_total_stats.recent_review_outcomes
         )
 
->>>>>>> upstream/develop
 
 class AuditGenerateContributorAdminStatsJobTests(ContributorDashboardTest):
 
@@ -1737,16 +1663,11 @@ class AuditGenerateContributorAdminStatsJobTests(ContributorDashboardTest):
         self.translation_suggestion_rejected_model_user2.update_timestamps()
         self.translation_suggestion_accepted_with_edits_model.update_timestamps() # pylint: disable=line-too-long
         self.translation_suggestion_accepted_model.update_timestamps()
-<<<<<<< HEAD
-=======
         self.translation_suggestion_in_review_model_user3.update_timestamps()
->>>>>>> upstream/develop
         self.topic_model_1.update_timestamps()
         self.topic_model_2.update_timestamps()
         self.topic_model_3.update_timestamps()
         self.topic_model_4.update_timestamps()
-<<<<<<< HEAD
-=======
         self.exp_1.update_timestamps()
         self.exp_2.update_timestamps()
         self.exp_3.update_timestamps()
@@ -1759,7 +1680,6 @@ class AuditGenerateContributorAdminStatsJobTests(ContributorDashboardTest):
         self.exp_context_2.update_timestamps()
         self.exp_context_3.update_timestamps()
         self.exp_context_4.update_timestamps()
->>>>>>> upstream/develop
 
         self.put_multi([
             self.translation_contribution_model_1,
@@ -1788,12 +1708,6 @@ class AuditGenerateContributorAdminStatsJobTests(ContributorDashboardTest):
             self.translation_suggestion_rejected_model_user2,
             self.translation_suggestion_accepted_with_edits_model,
             self.translation_suggestion_accepted_model,
-<<<<<<< HEAD
-            self.topic_model_1,
-            self.topic_model_2,
-            self.topic_model_3,
-            self.topic_model_4
-=======
             self.translation_suggestion_in_review_model_user3,
             self.topic_model_1,
             self.topic_model_2,
@@ -1811,7 +1725,6 @@ class AuditGenerateContributorAdminStatsJobTests(ContributorDashboardTest):
             self.exp_context_2,
             self.exp_context_3,
             self.exp_context_4
->>>>>>> upstream/develop
         ])
 
         self.assert_job_output_is([
@@ -1846,11 +1759,7 @@ class AuditGenerateContributorAdminStatsJobTests(ContributorDashboardTest):
             id=i + 120,
             suggestion_type=feconf.SUGGESTION_TYPE_TRANSLATE_CONTENT,
             target_type=feconf.ENTITY_TYPE_EXPLORATION,
-<<<<<<< HEAD
-            target_id=self.target_id,
-=======
             target_id=self.target_id_2,
->>>>>>> upstream/develop
             target_version_at_submission=self.target_version_at_submission,
             status=suggestion_models.STATUS_ACCEPTED,
             author_id='user1',
@@ -1861,9 +1770,6 @@ class AuditGenerateContributorAdminStatsJobTests(ContributorDashboardTest):
             edited_by_reviewer=True).put()
 
         self.topic_model_1.update_timestamps()
-<<<<<<< HEAD
-        self.put_multi([self.topic_model_1])
-=======
         self.exp_2.update_timestamps()
         self.story_2.update_timestamps()
         self.exp_context_2.update_timestamps()
@@ -1872,7 +1778,6 @@ class AuditGenerateContributorAdminStatsJobTests(ContributorDashboardTest):
             self.exp_2,
             self.story_2,
             self.exp_context_2])
->>>>>>> upstream/develop
         self.translation_contribution_model_1.update_timestamps()
         self.translation_contribution_model_1.put()
         self.question_contribution_model_1.update_timestamps()
@@ -1920,9 +1825,6 @@ class AuditGenerateContributorAdminStatsJobTests(ContributorDashboardTest):
                     'with question suggestion: \n- exp1\n-- Topic ID: topic1\n'
                     '-- Topic ID: topic2\nUnique topic IDs with contribution '
                     'stats: \n- topic1\nUnique valid topic IDs with '
-<<<<<<< HEAD
-                    'contribution stats: \n- topic1\n')),
-=======
                     'contribution stats: \n- topic1\n'))
         ])
 
@@ -1986,5 +1888,4 @@ class AuditGenerateContributorAdminStatsJobTests(ContributorDashboardTest):
                     'Story ID: story2\n---- Topic ID: topic2\nUnique topic '
                     'IDs with contribution stats: \n- topic2\nUnique valid '
                     'topic IDs with contribution stats: \n- topic2\n'))
->>>>>>> upstream/develop
         ])
